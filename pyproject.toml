@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "toggl_python"
+version = "0.1.1"
+description = "Python wraper for Toggl API."
+authors = ["Ivlev Denis <me@dierz.pro>"]
+readme = "README.md"
+homepage = "https://github.com/evrone/toggl_python"
+repository = "https://github.com/evrone/toggl_python"
+documentation = "https://toggl-python.readthedocs.io"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+]
+[tool.poetry.dependencies]
+python = "^3.8"
+httpx = "^0.13.3"
+pydantic = {extras = ["email"], version = "^1.5.1"}
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+respx = "^0.11.1"
+black = "^19.10b0"
+ipython = "^7.15.0"
+
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
