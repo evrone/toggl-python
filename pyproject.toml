@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "toggl_python"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python wraper for Toggl API."
 authors = ["Ivlev Denis <me@dierz.pro>"]
 readme = "README.md"
