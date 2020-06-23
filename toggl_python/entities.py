@@ -106,7 +106,7 @@ class Workspace(BaseEntity):
     only_admins_see_billable_rates: bool
     rounding: int
     rounding_minutes: int
-    logo_url: HttpUrl
+    logo_url: Optional[HttpUrl] = None
 
 
 class WorkspaceUser(BaseEntity):
