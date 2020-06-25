@@ -17,7 +17,7 @@ from .entities import (
     Workspace,
     WorkspaceUser,
 )
-from .exceptions import NotSupported
+from .exceptions import MethodNotAllowed, NotSupported
 
 
 class BaseRepository(Api):
@@ -25,6 +25,7 @@ class BaseRepository(Api):
     DETAIL_URL = None
     ENTITY_CLASS = BaseEntity
     ADDITIONAL_METHODS = {}
+    EXCLUDED_METHODS = ()
 
     def __init__(self, base_url=None, auth=None):
         super().__init__(base_url=base_url, auth=auth)
@@ -32,6 +33,8 @@ class BaseRepository(Api):
             self.DETAIL_URL = self.LIST_URL + "/{id}"
 
     def __getattr__(self, method: str):
+        if method in self.EXCLUDED_METHODS:
+            raise MethodNotAllowed
         try:
             method = super().__getattr__(method)
         except AttributeError:
@@ -94,20 +97,28 @@ class BaseRepository(Api):
         return [entity_class(**entity) for entity in response.json()]
 
     def list(self, **kwargs):
+        if "list" in self.EXCLUDED_METHODS:
+            raise MethodNotAllowed
         full_url = self.BASE_URL.join(self.LIST_URL)
         return self._list(full_url, self.ENTITY_CLASS)
 
     def create(self, entity: ENTITY_CLASS):
+        if "create" in self.EXCLUDED_METHODS:
+            raise MethodNotAllowed
         full_url = self.BASE_URL.join(self.LIST_URL)
         response = self.post(full_url, data=entity.dict())
         return self.ENTITY_CLASS(**response.json())
 
     def update(self, entity: ENTITY_CLASS):
+        if "update" in self.EXCLUDED_METHODS:
+            raise MethodNotAllowed
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=entity.id))
         response = self.put(full_url, data=entity.dict())
         return self.ENTITY_CLASS(**response.json())
 
     def partial_update(self, entity: ENTITY_CLASS):
+        if "partial_update" in self.EXCLUDED_METHODS:
+            raise MethodNotAllowed
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=entity.id))
         response = self.patch(full_url, data=entity.dict())
         return self.ENTITY_CLASS(**response.json())
