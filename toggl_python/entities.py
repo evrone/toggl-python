@@ -111,9 +111,12 @@ class Workspace(BaseEntity):
 
 class WorkspaceUser(BaseEntity):
     uid: int
+    wid: int
     admin: bool
     active: bool
-    invite_url: HttpUrl
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    invite_url: Optional[HttpUrl] = None
 
 
 class Activity(BaseEntity):
