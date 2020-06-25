@@ -79,7 +79,7 @@ class BaseRepository(Api):
         else:
             raise NotSupported
 
-    def _retrieve(self, _url, entity_class, data_key: str = None, **kwargs):
+    def _retrieve(self, _url, entity_class, data_key: str = "data", **kwargs):
         response = self.get(_url)
         data = response.json()
         if data_key:
