@@ -17,6 +17,7 @@ from .entities import (
     Workspace,
     WorkspaceUser,
 )
+from .exceptions import NotSupported
 
 
 class BaseRepository(Api):
@@ -44,11 +45,13 @@ class BaseRepository(Api):
 
     def additionat_method(
         self,
-        id: int,
         url: str,
+        _id: int = None,
         additional_id: int = None,
         entity: object = None,
         detail: bool = False,
+        single_item: bool = False,
+        data_key: str = None,
         params: dict = None,
         data: dict = None,
         files: dict = None,
@@ -59,16 +62,28 @@ class BaseRepository(Api):
 
         if detail:
             _url = (self.DETAIL_URL + "/" + url + "/{additional_id}").format(
-                id=id, additional_id=additional_id
+                id=_id, additional_id=additional_id
             )
             return self._retrieve(_url, entity, headers=self.HEADERS)
-        else:
-            _url = (self.DETAIL_URL + "/" + url).format(id=id)
+        elif _id:
+            _url = (self.DETAIL_URL + "/" + url).format(id=_id)
             return self._list(_url, entity, headers=self.HEADERS)
+        elif single_item:
+            _url = str(self.BASE_URL) + "/" + url
+            return self._retrieve(
+                _url, entity, headers=self.HEADERS, data_key="data"
+            )
+        else:
+            raise NotSupported
 
-    def _retrieve(self, _url, entity_class, **kwargs):
+    def _retrieve(self, _url, entity_class, data_key: str = None, **kwargs):
         response = self.get(_url)
-        return entity_class(**response.json())
+        data = response.json()
+        if data_key:
+            data = data[data_key]
+            return entity_class(**data)
+        else:
+            return entity_class(**data)
 
     def retrieve(self, id: int = None, **kwargs):
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=id))
