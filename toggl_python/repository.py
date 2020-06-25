@@ -141,6 +141,9 @@ class Users(BaseRepository):
 class Workspaces(BaseRepository):
     LIST_URL = "workspaces"
     ENTITY_CLASS = Workspace
+    ADDITIONAL_METHODS = {
+        "projects": {"url": "projects", "entity": Project, "detail": False}
+    }
 
 
 class WorkspaceUsers(BaseRepository):
