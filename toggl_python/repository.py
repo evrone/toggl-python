@@ -160,8 +160,12 @@ class TimeEntries(BaseRepository):
 
 
 class Users(BaseRepository):
+    EXCLUDED_METHODS = ("list", "create", "update", "partial_update")
     LIST_URL = "users"
     ENTITY_CLASS = User
+    ADDITIONAL_METHODS = {
+        "me": {"url": "me", "entity": User, "single_item": True},
+    }
 
 
 class Workspaces(BaseRepository):
