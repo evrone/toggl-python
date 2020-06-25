@@ -172,7 +172,17 @@ class Workspaces(BaseRepository):
     LIST_URL = "workspaces"
     ENTITY_CLASS = Workspace
     ADDITIONAL_METHODS = {
-        "projects": {"url": "projects", "entity": Project, "detail": False}
+        "projects": {"url": "projects", "entity": Project, "detail": False},
+        "users": {"url": "users", "entity": User, "detail": False},
+        "clients": {"url": "clients", "entity": Client, "detail": False},
+        "groups": {"url": "groups", "entity": Group, "detail": False},
+        "tasks": {"url": "tasks", "entity": Task, "detail": False},
+        "tags": {"url": "tags", "entity": Tag, "detail": False},
+        "workspace_users": {
+            "url": "workspace_users",
+            "entity": WorkspaceUser,
+            "detail": False,
+        },
     }
 
 
