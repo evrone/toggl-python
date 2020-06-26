@@ -1,4 +1,4 @@
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 
 from .auth import BasicAuth, TokenAuth  # noqa: F401
 from .entities import Dashboard  # noqa: F401
