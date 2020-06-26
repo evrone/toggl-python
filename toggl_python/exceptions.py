@@ -1,3 +1,7 @@
+class BadRequest(Exception):
+    pass
+
+
 class Unauthorized(Exception):
     pass
 
@@ -19,6 +23,7 @@ class NotSupported(Exception):
 
 
 STATUS_2_EXCEPTION = {
+    400: BadRequest,
     401: Unauthorized,
     403: Forbidden,
     404: NotFound,
