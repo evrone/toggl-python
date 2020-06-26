@@ -50,13 +50,18 @@ class Api:
         _url = self.BASE_URL.join(url)
 
         response = (
-            method(_url, headers=self.HEADERS)
+            method(_url, params=params, headers=self.HEADERS)
             if method.__name__ == "get"
-            else method(_url, json=data, files=files)
+            else method(
+                _url,
+                params=params,
+                json=data,
+                files=files,
+                headers=self.HEADERS,
+            )
         )
-
         if response.status_code == httpx.codes.OK:
             return response
         else:
             exception_class = STATUS_2_EXCEPTION[response.status_code]
-            raise exception_class
+            raise exception_class(response.text)
