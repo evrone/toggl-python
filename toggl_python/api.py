@@ -13,7 +13,10 @@ class Api:
     """Simple api wraper."""
 
     BASE_URL: httpx.URL = httpx.URL("https://www.toggl.com/api/v8/")
-    HEADERS = {"content-type": "application/json"}
+    HEADERS = {
+        "content-type": "application/json",
+        "user_agent": "toggl-python",
+    }
 
     def __init__(
         self,
