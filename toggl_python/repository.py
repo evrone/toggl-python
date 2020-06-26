@@ -26,6 +26,8 @@ class BaseRepository(Api):
     ENTITY_CLASS = BaseEntity
     ADDITIONAL_METHODS = {}
     EXCLUDED_METHODS = ()
+    ADDITIONAL_PARAMS = {}
+    DATA_CONTAINER = {}
 
     def __init__(self, base_url=None, auth=None):
         super().__init__(base_url=base_url, auth=auth)
@@ -67,60 +69,75 @@ class BaseRepository(Api):
             _url = (self.DETAIL_URL + "/" + url + "/{additional_id}").format(
                 id=_id, additional_id=additional_id
             )
-            return self._retrieve(_url, entity, headers=self.HEADERS)
+            return self._retrieve(
+                _url, entity, headers=self.HEADERS, params=params
+            )
         elif _id:
             _url = (self.DETAIL_URL + "/" + url).format(id=_id)
-            return self._list(_url, entity, headers=self.HEADERS)
+            return self._list(_url, entity, headers=self.HEADERS, param=params)
         elif single_item:
             _url = str(self.BASE_URL) + "/" + url
             return self._retrieve(
-                _url, entity, headers=self.HEADERS, data_key="data"
+                _url,
+                entity,
+                headers=self.HEADERS,
+                params=params,
+                data_key="data",
             )
         else:
             raise NotSupported
 
     def _retrieve(self, _url, entity_class, data_key: str = "data", **kwargs):
-        response = self.get(_url)
+        params = kwargs
+        params.update(self.ADDITIONAL_PARAMS.get("retrieve", {}))
+
+        response = self.get(_url, params=params)
         data = response.json()
+        data_key = data_key or self.DATA_CONTAINER.get('retrieve', None)
         if data_key:
             data = data[data_key]
-            return entity_class(**data)
-        else:
             return entity_class(**data)
 
     def retrieve(self, id: int = None, **kwargs):
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=id))
         return self._retrieve(full_url, self.ENTITY_CLASS)
 
-    def _list(self, _url, entity_class, **kwargs):
-        response = self.get(_url)
-        return [entity_class(**entity) for entity in response.json()]
+    def _list(self, _url, entity_class, data_key: str = None, **kwargs):
+        params = kwargs
+        params.update(self.ADDITIONAL_PARAMS.get("list", {}))
+
+        response = self.get(_url, params=params)
+        data = response.json()
+        data_key = data_key or self.DATA_CONTAINER.get('list', None)
+        if data_key:
+            data = data[data_key]
+        return [entity_class(**entity) for entity in data]
 
     def list(self, **kwargs):
         if "list" in self.EXCLUDED_METHODS:
             raise MethodNotAllowed
         full_url = self.BASE_URL.join(self.LIST_URL)
-        return self._list(full_url, self.ENTITY_CLASS)
+        return self._list(full_url, self.ENTITY_CLASS, **kwargs)
 
-    def create(self, entity: ENTITY_CLASS):
+    def create(self, entity: ENTITY_CLASS, **kwargs):
         if "create" in self.EXCLUDED_METHODS:
             raise MethodNotAllowed
         full_url = self.BASE_URL.join(self.LIST_URL)
-        response = self.post(full_url, data=entity.dict())
+        response = self.post(full_url, data=entity.dict(), **kwargs)
         return self.ENTITY_CLASS(**response.json())
 
-    def update(self, entity: ENTITY_CLASS):
+    def update(self, entity: ENTITY_CLASS, **kwargs):
         if "update" in self.EXCLUDED_METHODS:
             raise MethodNotAllowed
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=entity.id))
-        response = self.put(full_url, data=entity.dict())
+        response = self.put(full_url, data=entity.dict(), **kwargs)
         return self.ENTITY_CLASS(**response.json())
 
-    def partial_update(self, entity: ENTITY_CLASS):
+    def partial_update(self, entity: ENTITY_CLASS, **kwargs):
         if "partial_update" in self.EXCLUDED_METHODS:
             raise MethodNotAllowed
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=entity.id))
-        response = self.patch(full_url, data=entity.dict())
+        response = self.patch(full_url, data=entity.dict(), **kwargs)
         return self.ENTITY_CLASS(**response.json())
 
 
