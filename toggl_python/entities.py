@@ -74,6 +74,21 @@ class TimeEntry(BaseEntity):
     duronly: Optional[bool] = None
 
 
+class ReportTimeEntry(BaseEntity):
+    wid: Optional[int] = None
+    pid: Optional[int] = None
+    tid: Optional[int] = None
+    uid: Optional[int] = None
+    description: Optional[str] = None
+    billable: Optional[int] = False
+    is_billable: Optional[bool] = False
+    cur: Optional[str] = False
+    start: Union[datetime, Callable] = datetime.now
+    end: Union[datetime, Callable] = None
+    dur: int
+    tags: List[str] = []
+
+
 class User(BaseEntity):
     api_token: Optional[str] = None
     default_wid: Optional[int] = None

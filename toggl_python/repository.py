@@ -16,6 +16,7 @@ from .entities import (
     User,
     Workspace,
     WorkspaceUser,
+    ReportTimeEntry,
 )
 from .exceptions import MethodNotAllowed, NotSupported
 
@@ -96,7 +97,7 @@ class BaseRepository(Api):
         data_key = data_key or self.DATA_CONTAINER.get('retrieve', None)
         if data_key:
             data = data[data_key]
-            return entity_class(**data)
+        return entity_class(**data)
 
     def retrieve(self, id: int = None, **kwargs):
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=id))
@@ -174,6 +175,14 @@ class Tasks(BaseRepository):
 class TimeEntries(BaseRepository):
     LIST_URL = "time_entries"
     ENTITY_CLASS = TimeEntry
+
+
+class ReportTimeEntries(BaseRepository):
+    BASE_URL: httpx.URL = httpx.URL("https://toggl.com/reports/api/v2/")
+    ADDITIONAL_PARAMS = {"list": {"user_agent": "toggl_python"}}
+    DATA_CONTAINER = {"list": "data"}
+    LIST_URL = "details"
+    ENTITY_CLASS = ReportTimeEntry
 
 
 class Users(BaseRepository):
