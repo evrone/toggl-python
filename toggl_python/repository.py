@@ -94,10 +94,11 @@ class BaseRepository(Api):
 
         response = self.get(_url, params=params)
         data = response.json()
-        data_key = data_key or self.DATA_CONTAINER.get('retrieve', None)
+        data_key = data_key or self.DATA_CONTAINER.get("retrieve", None)
         if data_key:
             data = data[data_key]
-        return entity_class(**data)
+        if data:
+            return entity_class(**data)
 
     def retrieve(self, id: int = None, **kwargs):
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=id))
@@ -109,10 +110,11 @@ class BaseRepository(Api):
 
         response = self.get(_url, params=params)
         data = response.json()
-        data_key = data_key or self.DATA_CONTAINER.get('list', None)
+        data_key = data_key or self.DATA_CONTAINER.get("list", None)
         if data_key:
             data = data[data_key]
-        return [entity_class(**entity) for entity in data]
+        if data:
+            return [entity_class(**entity) for entity in data]
 
     def list(self, **kwargs):
         if "list" in self.EXCLUDED_METHODS:
