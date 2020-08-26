@@ -1,4 +1,4 @@
-__version__ = "0.2.5"
+__version__ = "0.2.6"
 
 from .auth import BasicAuth, TokenAuth  # noqa: F401
 from .entities import Dashboard  # noqa: F401
@@ -23,6 +23,7 @@ from .repository import (
     Dashboards,
     Groups,
     ProjectUsers,
+    ReportTimeEntries,
     Tags,
     Tasks,
     TimeEntries,

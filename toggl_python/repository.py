@@ -19,6 +19,7 @@ from .entities import (
     ReportTimeEntry,
 )
 from .exceptions import MethodNotAllowed, NotSupported
+from .response import ListResponse
 
 
 class BaseRepository(Api):
@@ -29,6 +30,7 @@ class BaseRepository(Api):
     EXCLUDED_METHODS = ()
     ADDITIONAL_PARAMS = {}
     DATA_CONTAINER = {}
+    RESPONSE_WRAPPER = {}
 
     def __init__(self, base_url=None, auth=None):
         super().__init__(base_url=base_url, auth=auth)
@@ -114,7 +116,11 @@ class BaseRepository(Api):
         if data_key:
             data = data[data_key]
         if data:
-            return [entity_class(**entity) for entity in data]
+            result = [entity_class(**entity) for entity in data]
+            wrapper = self.RESPONSE_WRAPPER.get("list")
+            if wrapper:
+                result = wrapper(result, response)
+            return result
 
     def list(self, **kwargs):
         if "list" in self.EXCLUDED_METHODS:
@@ -185,6 +191,7 @@ class ReportTimeEntries(BaseRepository):
     DATA_CONTAINER = {"list": "data"}
     LIST_URL = "details"
     ENTITY_CLASS = ReportTimeEntry
+    RESPONSE_WRAPPER = {"list": ListResponse}
 
 
 class Users(BaseRepository):
