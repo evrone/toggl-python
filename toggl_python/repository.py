@@ -19,7 +19,6 @@ from .entities import (
     ReportTimeEntry,
 )
 from .exceptions import MethodNotAllowed, NotSupported
-from .response import ListResponse
 
 
 class BaseRepository(Api):
@@ -30,7 +29,6 @@ class BaseRepository(Api):
     EXCLUDED_METHODS = ()
     ADDITIONAL_PARAMS = {}
     DATA_CONTAINER = {}
-    RESPONSE_WRAPPER = {}
 
     def __init__(self, base_url=None, auth=None):
         super().__init__(base_url=base_url, auth=auth)
@@ -111,15 +109,24 @@ class BaseRepository(Api):
         params.update(self.ADDITIONAL_PARAMS.get("list", {}))
 
         response = self.get(_url, params=params)
-        data = response.json()
+        response_body = response.json()
+        response_parameters = (
+            "total_count",
+            "per_page",
+            "total_grand",
+            "total_billable",
+            "total_currencies",
+        )
+
+        data = response_body
         data_key = data_key or self.DATA_CONTAINER.get("list", None)
         if data_key:
             data = data[data_key]
         if data:
             result = [entity_class(**entity) for entity in data]
-            wrapper = self.RESPONSE_WRAPPER.get("list")
-            if wrapper:
-                result = wrapper(result, response)
+            for parameter in response_parameters:
+                if parameter in response_body:
+                    setattr(result, parameter, response_body[parameter])
             return result
 
     def list(self, **kwargs):
@@ -191,7 +198,6 @@ class ReportTimeEntries(BaseRepository):
     DATA_CONTAINER = {"list": "data"}
     LIST_URL = "details"
     ENTITY_CLASS = ReportTimeEntry
-    RESPONSE_WRAPPER = {"list": ListResponse}
 
 
 class Users(BaseRepository):
