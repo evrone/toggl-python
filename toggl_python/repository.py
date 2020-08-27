@@ -19,6 +19,7 @@ from .entities import (
     ReportTimeEntry,
 )
 from .exceptions import MethodNotAllowed, NotSupported
+from .response import ListResponse
 
 
 class BaseRepository(Api):
@@ -110,24 +111,14 @@ class BaseRepository(Api):
 
         response = self.get(_url, params=params)
         response_body = response.json()
-        response_parameters = (
-            "total_count",
-            "per_page",
-            "total_grand",
-            "total_billable",
-            "total_currencies",
-        )
 
         data = response_body
         data_key = data_key or self.DATA_CONTAINER.get("list", None)
         if data_key:
             data = data[data_key]
         if data:
-            result = [entity_class(**entity) for entity in data]
-            for parameter in response_parameters:
-                if parameter in response_body:
-                    setattr(result, parameter, response_body[parameter])
-            return result
+            value = [entity_class(**entity) for entity in data]
+            return ListResponse(value, response_body)
 
     def list(self, **kwargs):
         if "list" in self.EXCLUDED_METHODS:
