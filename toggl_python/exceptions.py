@@ -1,24 +1,28 @@
-class BadRequest(Exception):
+class TogglException(Exception):
     pass
 
 
-class Unauthorized(Exception):
+class BadRequest(TogglException):
     pass
 
 
-class Forbidden(Exception):
+class Unauthorized(TogglException):
     pass
 
 
-class NotFound(Exception):
+class Forbidden(TogglException):
     pass
 
 
-class MethodNotAllowed(Exception):
+class NotFound(TogglException):
     pass
 
 
-class NotSupported(Exception):
+class MethodNotAllowed(TogglException):
+    pass
+
+
+class NotSupported(TogglException):
     pass
 
 
