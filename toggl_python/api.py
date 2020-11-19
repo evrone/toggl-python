@@ -2,6 +2,7 @@
 
 import typing
 from functools import partial
+from typing import Any, Dict, Optional
 
 import httpx
 
@@ -21,13 +22,13 @@ class Api:
     def __init__(
         self,
         base_url: typing.Optional[str] = None,
-        auth: typing.Union[BasicAuth, TokenAuth] = None,
+        auth: Optional[typing.Union[BasicAuth, TokenAuth]] = None,
     ):
         if base_url:
             self.BASE_URL = httpx.URL(base_url)
         self.client = httpx.Client(base_url=self.BASE_URL, auth=auth)
 
-    def __getattr__(self, httpmethod):
+    def __getattr__(self, httpmethod: str) -> Any:
         try:
             method = getattr(self.client, httpmethod)
         except AttributeError:
@@ -37,12 +38,12 @@ class Api:
 
     def api_method(
         self,
-        method: typing.Callable,
+        method: Any,
         url: str,
-        params: dict = None,
-        data: dict = None,
-        files: dict = None,
-    ) -> httpx.Response:
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
+        files: Optional[Dict[str, Any]] = None,
+    ) -> Any:
         """
         Call http method with specified url and params
         """

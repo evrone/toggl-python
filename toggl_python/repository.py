@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Any, Dict, Optional, Tuple, Type, Union
 
 import httpx
 
@@ -10,65 +11,72 @@ from .entities import (
     Group,
     Project,
     ProjectUser,
+    ReportTimeEntry,
     Tag,
     Task,
     TimeEntry,
     User,
     Workspace,
     WorkspaceUser,
-    ReportTimeEntry,
 )
 from .exceptions import MethodNotAllowed, NotSupported
-from .response import ReportTimeEntriesList
+from .response import ListResponse, ReportTimeEntriesList
+from .auth import BasicAuth, TokenAuth
 
 
 class BaseRepository(Api):
     LIST_URL = ""
-    DETAIL_URL = None
-    ENTITY_CLASS = BaseEntity
-    ADDITIONAL_METHODS = {}
-    EXCLUDED_METHODS = ()
-    ADDITIONAL_PARAMS = {}
-    DATA_CONTAINER = {}
-    LIST_RESPONSE = None
+    DETAIL_URL: Optional[str] = None
+    ENTITY_CLASS: Type[BaseEntity] = BaseEntity
+    ADDITIONAL_METHODS: Dict[str, Dict[str, Any]] = {}
+    EXCLUDED_METHODS: Optional[Tuple[str, ...]] = None
+    ADDITIONAL_PARAMS: Dict[str, Dict[str, Any]] = {}
+    DATA_CONTAINER: Dict[str, Optional[str]] = {}
+    LIST_RESPONSE: Optional[Type[ListResponse]] = None
 
-    def __init__(self, base_url=None, auth=None):
+    def __init__(
+        self,
+        base_url: Optional[str] = None,
+        auth: Optional[Union[BasicAuth, TokenAuth]] = None,
+    ) -> None:
         super().__init__(base_url=base_url, auth=auth)
         if not self.DETAIL_URL:
             self.DETAIL_URL = self.LIST_URL + "/{id}"
 
-    def __getattr__(self, method: str):
-        if method in self.EXCLUDED_METHODS:
+    def __getattr__(self, attr: str) -> Any:
+        if self.EXCLUDED_METHODS and attr in self.EXCLUDED_METHODS:
             raise MethodNotAllowed
         try:
-            method = super().__getattr__(method)
+            method = super().__getattr__(attr)
         except AttributeError:
-            if method in self.ADDITIONAL_METHODS.keys():
+            if attr in self.ADDITIONAL_METHODS.keys():
                 method = partial(
-                    self.additionat_method, **self.ADDITIONAL_METHODS[method]
+                    self.additionat_method, **self.ADDITIONAL_METHODS[attr]
                 )
             else:
-                raise AttributeError(f"No such method ({method})!")
+                raise AttributeError(f"No such method ({attr})!")
         return method
 
     def additionat_method(
         self,
         url: str,
-        _id: int = None,
-        additional_id: int = None,
-        entity: object = None,
+        _id: Optional[int] = None,
+        additional_id: Optional[int] = None,
+        entity: Any = None,
         detail: bool = False,
         single_item: bool = False,
-        data_key: str = None,
-        params: dict = None,
-        data: dict = None,
-        files: dict = None,
-    ) -> httpx.Response:
+        data_key: Optional[str] = None,
+        params: Optional[Dict[str, Any]] = None,
+        data: Optional[Dict[str, Any]] = None,
+        files: Optional[Dict[str, Any]] = None,
+    ) -> Any:
         """
         Call additional method with specified url and params
         """
 
         if detail:
+            if not self.DETAIL_URL:
+                raise AttributeError("Not defined DETAIL_URL")
             _url = (self.DETAIL_URL + "/" + url + "/{additional_id}").format(
                 id=_id, additional_id=additional_id
             )
@@ -76,6 +84,8 @@ class BaseRepository(Api):
                 _url, entity, headers=self.HEADERS, params=params
             )
         elif _id:
+            if not self.DETAIL_URL:
+                raise AttributeError("Not defined DETAIL_URL")
             _url = (self.DETAIL_URL + "/" + url).format(id=_id)
             return self._list(_url, entity, headers=self.HEADERS, param=params)
         elif single_item:
@@ -90,7 +100,13 @@ class BaseRepository(Api):
         else:
             raise NotSupported
 
-    def _retrieve(self, _url, entity_class, data_key: str = "data", **kwargs):
+    def _retrieve(
+        self,
+        _url: Union[str, httpx.URL],
+        entity_class: Any,
+        data_key: Optional[str] = "data",
+        **kwargs: Any,
+    ) -> Any:
         params = kwargs
         params.update(self.ADDITIONAL_PARAMS.get("retrieve", {}))
 
@@ -102,11 +118,19 @@ class BaseRepository(Api):
         if data:
             return entity_class(**data)
 
-    def retrieve(self, id: int = None, **kwargs):
+    def retrieve(self, id: Optional[int] = None) -> Any:
+        if not self.DETAIL_URL:
+            raise AttributeError("Not defined DETAIL_URL")
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=id))
         return self._retrieve(full_url, self.ENTITY_CLASS)
 
-    def _list(self, _url, entity_class, data_key: str = None, **kwargs):
+    def _list(
+        self,
+        _url: Union[str, httpx.URL],
+        entity_class: Any,
+        data_key: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Any:
         params = kwargs
         params.update(self.ADDITIONAL_PARAMS.get("list", {}))
 
@@ -123,29 +147,33 @@ class BaseRepository(Api):
                 value = self.LIST_RESPONSE(value, response_body)
             return value
 
-    def list(self, **kwargs):
-        if "list" in self.EXCLUDED_METHODS:
+    def list(self, **kwargs: Any) -> Any:
+        if self.EXCLUDED_METHODS and "list" in self.EXCLUDED_METHODS:
             raise MethodNotAllowed
         full_url = self.BASE_URL.join(self.LIST_URL)
         return self._list(full_url, self.ENTITY_CLASS, **kwargs)
 
-    def create(self, entity: ENTITY_CLASS, **kwargs):
-        if "create" in self.EXCLUDED_METHODS:
+    def create(self, entity: Any, **kwargs: Any) -> Any:
+        if self.EXCLUDED_METHODS and "create" in self.EXCLUDED_METHODS:
             raise MethodNotAllowed
         full_url = self.BASE_URL.join(self.LIST_URL)
         response = self.post(full_url, data=entity.dict(), **kwargs)
         return self.ENTITY_CLASS(**response.json())
 
-    def update(self, entity: ENTITY_CLASS, **kwargs):
-        if "update" in self.EXCLUDED_METHODS:
+    def update(self, entity: Any, **kwargs: Any) -> Any:
+        if self.EXCLUDED_METHODS and "update" in self.EXCLUDED_METHODS:
             raise MethodNotAllowed
+        if not self.DETAIL_URL:
+            raise AttributeError("Not defined DETAIL_URL")
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=entity.id))
         response = self.put(full_url, data=entity.dict(), **kwargs)
         return self.ENTITY_CLASS(**response.json())
 
-    def partial_update(self, entity: ENTITY_CLASS, **kwargs):
-        if "partial_update" in self.EXCLUDED_METHODS:
+    def partial_update(self, entity: Any, **kwargs: Any) -> Any:
+        if self.EXCLUDED_METHODS and "partial_update" in self.EXCLUDED_METHODS:
             raise MethodNotAllowed
+        if not self.DETAIL_URL:
+            raise AttributeError("Not defined DETAIL_URL")
         full_url = self.BASE_URL.join(self.DETAIL_URL.format(id=entity.id))
         response = self.patch(full_url, data=entity.dict(), **kwargs)
         return self.ENTITY_CLASS(**response.json())

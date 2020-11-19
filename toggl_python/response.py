@@ -1,7 +1,10 @@
-class ListResponse(list):
-    response_parameters = ()
+from typing import Any, List, Tuple
 
-    def __init__(self, value, response_body):
+
+class ListResponse(List[Any]):
+    response_parameters: Tuple[str, ...] = ()
+
+    def __init__(self, value: Any, response_body: Any):
         super(ListResponse, self).__init__(value)
 
         for parameter in self.response_parameters:

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Callable, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from pydantic import BaseModel, EmailStr, HttpUrl
 
@@ -31,7 +31,7 @@ class Project(BaseEntity):
     billable: bool = True
     auto_estimates: Optional[bool] = False
     estimated_hours: Optional[int] = None
-    color: Union[str, int] = None
+    color: Union[str, int] = 0
     rate: Optional[float] = None
     created_at: Optional[datetime] = None
 
@@ -66,8 +66,8 @@ class TimeEntry(BaseEntity):
     tid: Optional[int] = None
     description: Optional[str] = None
     billable: Optional[bool] = False
-    start: Union[datetime, Callable] = datetime.now
-    stop: Union[datetime, Callable] = None
+    start: Union[datetime, Callable[[], datetime]] = datetime.now
+    stop: Optional[Union[datetime, Callable[[], datetime]]] = None
     duration: int
     created_with: Optional[str]
     tags: List[str] = []
@@ -82,9 +82,9 @@ class ReportTimeEntry(BaseEntity):
     description: Optional[str] = None
     billable: Optional[int] = False
     is_billable: Optional[bool] = False
-    cur: Optional[str] = False
-    start: Union[datetime, Callable] = datetime.now
-    end: Union[datetime, Callable] = None
+    cur: Optional[Union[str, bool]] = False
+    start: Union[datetime, Callable[[], datetime]] = datetime.now
+    end: Optional[Union[datetime, Callable[[], datetime]]] = None
     dur: int
     tags: List[str] = []
 
@@ -103,7 +103,7 @@ class User(BaseEntity):
     language: str
     image_url: HttpUrl
     sidebar_piechart: bool
-    new_blog_post: dict
+    new_blog_post: Dict[str, Any]
     send_product_emails: bool
     send_weekly_report: bool
     send_timer_notifications: bool
