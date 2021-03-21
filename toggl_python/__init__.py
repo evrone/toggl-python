@@ -33,6 +33,7 @@ from .repository import (
     WorkspaceUsers,
 )
 
+
 __all__ = [
     "Activity",
     "BasicAuth",

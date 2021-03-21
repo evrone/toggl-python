@@ -29,6 +29,26 @@ if __name__ == "__main__":
     print(TimeEntries(auth=auth).list())
 ```
 
+- Get toggl User.
+
+```python
+from toggl_python import TokenAuth, Users
+
+if __name__ == "__main__":
+    auth = TokenAuth('AUTH_TOKEN')
+    print(Users(auth=auth).me())
+```
+
+- Get toggl Workspaces.
+
+```python
+from toggl_python import TokenAuth, Workspaces
+
+if __name__ == "__main__":
+    auth = TokenAuth('AUTH_TOKEN')
+    print(Workspaces(auth=auth).list())
+```
+
 * *TODO*
 
 Credits

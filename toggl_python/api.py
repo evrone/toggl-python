@@ -11,7 +11,10 @@ from .exceptions import STATUS_2_EXCEPTION
 
 
 class Api:
-    """Simple api wraper."""
+    """
+    Simple api wrapper.
+    Allow to interact with official Toggl API via httpx.
+    """
 
     BASE_URL: httpx.URL = httpx.URL("https://www.toggl.com/api/v8/")
     HEADERS = {
@@ -29,6 +32,13 @@ class Api:
         self.client = httpx.Client(base_url=self.BASE_URL, auth=auth)
 
     def __getattr__(self, httpmethod: str) -> Any:
+        """
+        Checking existence of `httpmethod` method in httpx-client
+        and `partial` it to our client `api_method`
+
+        :param httpmethod: method name we trying to serve
+        :return:
+        """
         try:
             method = getattr(self.client, httpmethod)
         except AttributeError:
@@ -45,7 +55,14 @@ class Api:
         files: Optional[Dict[str, Any]] = None,
     ) -> Any:
         """
-        Call http method with specified url and params
+        Call httpx method with specified url and params
+
+        :param method: method we throwed from httpx-client via `__getattr__`
+        :param url: target url we nesting on `BASE_URL`
+        :param params: params to pass
+        :param data: json-data to pass
+        :param files: files to pass
+        :return:
         """
 
         _url = self.BASE_URL.join(url)

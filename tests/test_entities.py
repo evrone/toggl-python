@@ -3,22 +3,7 @@ from datetime import datetime
 import pydantic
 import pytest
 
-from toggl_python import (
-    Activity,
-    BaseEntity,
-    Client,
-    Dashboard,
-    Group,
-    MostActiveUser,
-    Project,
-    ProjectUser,
-    Tag,
-    Task,
-    TimeEntry,
-    User,
-    Workspace,
-    WorkspaceUser,
-)
+from toggl_python import BaseEntity, Client, Group, Project, ProjectUser, Tag, Task, TimeEntry
 
 
 def test_base_entity():

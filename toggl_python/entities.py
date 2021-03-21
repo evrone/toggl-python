@@ -103,7 +103,7 @@ class User(BaseEntity):
     language: str
     image_url: HttpUrl
     sidebar_piechart: bool
-    new_blog_post: Dict[str, Any] = None
+    new_blog_post: Optional[Dict[str, Any]] = None
     send_product_emails: bool
     send_weekly_report: bool
     send_timer_notifications: bool
