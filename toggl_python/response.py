@@ -2,6 +2,10 @@ from typing import Any, List, Tuple
 
 
 class ListResponse(List[Any]):
+    """
+    Base class for list response based from mutable sequence
+    """
+
     response_parameters: Tuple[str, ...] = ()
 
     def __init__(self, value: Any, response_body: Any):
@@ -13,6 +17,11 @@ class ListResponse(List[Any]):
 
 
 class ReportTimeEntriesList(ListResponse):
+    """
+    Simple ListResponse, extended with params `response_parameters`
+    from `response_body` on init
+    """
+
     response_parameters = (
         "total_count",
         "per_page",

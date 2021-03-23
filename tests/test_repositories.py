@@ -1,11 +1,6 @@
-from toggl_python import (
-    ReportTimeEntries,
-    TokenAuth,
-    ReportTimeEntry,
-    TimeEntries,
-    TimeEntry,
-)
 from tests.fixtures import REPORT_TIME_ENTRIES_RESPONSE, TIME_ENTRIES_RESPONSE
+
+from toggl_python import ReportTimeEntries, ReportTimeEntry, TimeEntries, TimeEntry, TokenAuth
 
 
 def test_report_time_entries_pagination(patch_report_time_entries):

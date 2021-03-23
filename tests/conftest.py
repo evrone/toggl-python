@@ -1,6 +1,6 @@
 import pytest
-
 from tests.fixtures import REPORT_TIME_ENTRIES_RESPONSE, TIME_ENTRIES_RESPONSE
+
 from toggl_python import ReportTimeEntries, TimeEntries
 
 

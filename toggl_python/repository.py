@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, Tuple, Type, Union
 import httpx
 
 from .api import Api
+from .auth import BasicAuth, TokenAuth
 from .entities import (
     BaseEntity,
     Client,
@@ -21,10 +22,14 @@ from .entities import (
 )
 from .exceptions import MethodNotAllowed, NotSupported
 from .response import ListResponse, ReportTimeEntriesList
-from .auth import BasicAuth, TokenAuth
 
 
 class BaseRepository(Api):
+    """
+    Base API-class for managing entities on Toggl side:
+    list, detail them and etc.
+    """
+
     LIST_URL = ""
     DETAIL_URL: Optional[str] = None
     ENTITY_CLASS: Type[BaseEntity] = BaseEntity
@@ -44,15 +49,20 @@ class BaseRepository(Api):
             self.DETAIL_URL = self.LIST_URL + "/{id}"
 
     def __getattr__(self, attr: str) -> Any:
+        """
+        Trying to get `partial`ed method `attr` from httpx-client.
+        In case of fail -> try to get own method from `ADDITIONAL_METHODS`
+        and `partial`ing it as well from payload of `ADDITIONAL_METHODS` item.
+        :param attr:
+        :return:
+        """
         if self.EXCLUDED_METHODS and attr in self.EXCLUDED_METHODS:
             raise MethodNotAllowed
         try:
             method = super().__getattr__(attr)
         except AttributeError:
             if attr in self.ADDITIONAL_METHODS.keys():
-                method = partial(
-                    self.additionat_method, **self.ADDITIONAL_METHODS[attr]
-                )
+                method = partial(self.additionat_method, **self.ADDITIONAL_METHODS[attr])
             else:
                 raise AttributeError(f"No such method ({attr})!")
         return method
@@ -71,18 +81,27 @@ class BaseRepository(Api):
         files: Optional[Dict[str, Any]] = None,
     ) -> Any:
         """
-        Call additional method with specified url and params
-        """
+        Call additional method with specified url and params.
 
+        :param url: url we use to build a target url
+        :param _id:
+        :param additional_id:
+        :param entity:
+        :param detail:
+        :param single_item:
+        :param data_key:
+        :param params: params to pass
+        :param data: json-data to pass
+        :param files: files to pass
+        :return:
+        """
         if detail:
             if not self.DETAIL_URL:
                 raise AttributeError("Not defined DETAIL_URL")
             _url = (self.DETAIL_URL + "/" + url + "/{additional_id}").format(
                 id=_id, additional_id=additional_id
             )
-            return self._retrieve(
-                _url, entity, headers=self.HEADERS, params=params
-            )
+            return self._retrieve(_url, entity, headers=self.HEADERS, params=params)
         elif _id:
             if not self.DETAIL_URL:
                 raise AttributeError("Not defined DETAIL_URL")
