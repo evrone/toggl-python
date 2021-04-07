@@ -16,10 +16,10 @@ Installation
 ------------
 `pip install toggl-python` or use [poetry](https://python-poetry.org) `poetry add toggl-python`
 
-Features
---------
+Usage example
+-------------
 
-- Get TimeEntries.
+Get authenticated user time entries:
 
 ```python
 from toggl_python import TokenAuth, TimeEntries
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     print(TimeEntries(auth=auth).list())
 ```
 
-- Get toggl User.
+Get information about the authenticated user:
 
 ```python
 from toggl_python import TokenAuth, Users
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     print(Users(auth=auth).me())
 ```
 
-- Get toggl Workspaces.
+Get information about authenticated user workspaces:
 
 ```python
 from toggl_python import TokenAuth, Workspaces
@@ -48,8 +48,6 @@ if __name__ == "__main__":
     auth = TokenAuth('AUTH_TOKEN')
     print(Workspaces(auth=auth).list())
 ```
-
-* *TODO*
 
 Credits
 -------
