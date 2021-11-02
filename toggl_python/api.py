@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 import httpx
 
 from .auth import BasicAuth, TokenAuth
-from .exceptions import STATUS_2_EXCEPTION
+from .exceptions import raise_from_response
 
 
 class Api:
@@ -78,8 +78,7 @@ class Api:
                 headers=self.HEADERS,
             )
         )
-        if response.status_code == httpx.codes.OK:
-            return response
-        else:
-            exception_class = STATUS_2_EXCEPTION[response.status_code]
-            raise exception_class(response.text)
+
+        raise_from_response(response)
+
+        return response
