@@ -234,7 +234,7 @@ class TimeEntries(BaseRepository):
 
 
 class ReportTimeEntries(BaseRepository):
-    BASE_URL: httpx.URL = httpx.URL("https://toggl.com/reports/api/v2/")
+    BASE_URL: httpx.URL = httpx.URL("https://api.track.toggl.com/reports/api/v2/")
     ADDITIONAL_PARAMS = {"list": {"user_agent": "toggl_python"}}
     DATA_CONTAINER = {"list": "data"}
     LIST_URL = "details"
