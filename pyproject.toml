@@ -21,7 +21,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.11"
 httpx = {extras=["http2"], version="^0.25.0"}
-pydantic = {extras = ["email"], version = "^2.4.2"}
+pydantic = {extras = ["email"], version = "^1.7.2"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4.2"
