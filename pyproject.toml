@@ -19,7 +19,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "3.11"
+python = "^3.11"
 httpx = {extras=["http2"], version="^0.25.0"}
 pydantic = {extras = ["email"], version = "^2.4.2"}
 
