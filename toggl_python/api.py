@@ -16,7 +16,7 @@ class Api:
     Allow to interact with official Toggl API via httpx.
     """
 
-    BASE_URL: httpx.URL = httpx.URL("https://api.track.toggl.com/api/v8/")
+    BASE_URL: httpx.URL = httpx.URL("https://api.track.toggl.com/api/v9/")
     HEADERS = {
         "content-type": "application/json",
         "user_agent": "toggl-python",

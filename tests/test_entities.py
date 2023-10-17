@@ -28,13 +28,13 @@ def test_client_entity():
 
 
 def test_group_entity():
-    Group(name="foo", wid=1)
-    Group(name="foo", wid=1, notes="some string")
+    Group(name="foo", workspace_id=1)
+    Group(name="foo", workspace_id=1, notes="some string")
 
     with pytest.raises(pydantic.ValidationError):
         Group(name="foo")
     with pytest.raises(pydantic.ValidationError):
-        Group(wid=1)
+        Group(workspace_id=1)
     with pytest.raises(pydantic.ValidationError):
         Group(name=1, wid=None)
 
@@ -65,23 +65,23 @@ def test_project_user_entity():
 
 
 def test_tag_entity():
-    Tag(name="foo", wid=1)
+    Tag(name="foo", workspace_id=1)
 
     with pytest.raises(pydantic.ValidationError):
         Tag(name="foo")
     with pytest.raises(pydantic.ValidationError):
-        Tag(wid=1)
+        Tag(workspace_id=1)
 
 
 def test_task_entity():
-    Task(name="foo", pid=1, wid=1)
+    Task(name="foo", project_id=1, workspace_id=1)
 
     with pytest.raises(pydantic.ValidationError):
-        Task(name="foo", pid=1)
+        Task(name="foo", project_id=1)
     with pytest.raises(pydantic.ValidationError):
-        Task(name="foo", wid=1)
+        Task(name="foo", workspace_id=1)
     with pytest.raises(pydantic.ValidationError):
-        Task(pid=1, wid=1)
+        Task(project_id=1, workspace_id=1)
 
 
 def test_time_entry_entity():
