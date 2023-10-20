@@ -28,7 +28,7 @@ class Project(BaseEntity):
     is_private: bool = True
     template: Optional[bool] = None
     template_id: Optional[int] = None
-    billable: bool = True
+    billable: Optional[bool] = True
     auto_estimates: Optional[bool] = False
     estimated_hours: Optional[int] = None
     color: Union[str, int] = 0

@@ -106,7 +106,6 @@ class BaseRepository(Api):
             if not self.DETAIL_URL:
                 raise AttributeError("Not defined DETAIL_URL")
             _url = (self.DETAIL_URL + "/" + url).format(id=_id)
-            print("___url", _url)
             return self._list(_url, entity, headers=self.HEADERS, param=params, data_key=data_key)
         elif single_item:
             _url = str(self.BASE_URL) + f"{url}"
@@ -153,11 +152,8 @@ class BaseRepository(Api):
         params = kwargs
         params.update(self.ADDITIONAL_PARAMS.get("list", {}))
 
-        print("_url", _url)
-
         response = self.get(_url, params=params)
         response_body = response.json()
-        print("response_body", response_body)
 
         data = response_body
         data_key = data_key or self.DATA_CONTAINER.get("list", None)
