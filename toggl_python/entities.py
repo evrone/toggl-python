@@ -69,7 +69,7 @@ class TimeEntry(BaseEntity):
     start: Union[datetime, Callable[[], datetime]] = datetime.now
     stop: Optional[Union[datetime, Callable[[], datetime]]] = None
     duration: int
-    created_with: Optional[str]
+    created_with: Optional[str] = None
     tags: List[str] = []
     duronly: Optional[bool] = None
 
