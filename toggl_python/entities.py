@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Callable, List, Optional, Union
 
-from pydantic import BaseModel, EmailStr, HttpUrl
+from pydantic import BaseModel, EmailStr, Field, HttpUrl
 
 
 class BaseEntity(BaseModel):
@@ -17,7 +17,7 @@ class Client(BaseEntity):
 
 class Group(BaseEntity):
     name: str
-    wid: int
+    wid: int = Field(alias="workspace_id")
 
 
 class Project(BaseEntity):
@@ -28,7 +28,7 @@ class Project(BaseEntity):
     is_private: bool = True
     template: Optional[bool] = None
     template_id: Optional[int] = None
-    billable: bool = True
+    billable: Optional[bool] = True
     auto_estimates: Optional[bool] = False
     estimated_hours: Optional[int] = None
     color: Union[str, int] = 0
@@ -48,15 +48,16 @@ class ProjectUser(BaseEntity):
 
 class Tag(BaseEntity):
     name: str
-    wid: int
+    wid: int = Field(alias="workspace_id")
 
 
 class Task(BaseEntity):
     name: str
-    pid: int
-    wid: int
-    uid: Optional[int] = None
+    pid: int = Field(alias="project_id")
+    wid: int = Field(alias="workspace_id")
+    uid: Optional[int] = Field(alias="user_id", default=None)
     estimated_seconds: Optional[int] = None
+    tracked_seconds: Optional[int] = None
     active: Optional[bool] = True
 
 
@@ -89,39 +90,35 @@ class ReportTimeEntry(BaseEntity):
     tags: List[str] = []
 
 
-class User(BaseEntity):
-    api_token: Optional[str] = None
-    default_wid: Optional[int] = None
-    email: EmailStr
-    fullname: str
-    jquery_timeofday_format: str
-    jquery_date_format: str
-    timeofday_format: str
-    date_format: str
-    store_start_and_stop_time: bool
-    beginning_of_week: int = 0
-    language: str
-    image_url: HttpUrl
-    sidebar_piechart: bool
-    new_blog_post: Optional[Dict[str, Any]] = None
-    send_product_emails: bool
-    send_weekly_report: bool
-    send_timer_notifications: bool
-    openid_enabled: bool
-    timezone: str
-
-
 class Workspace(BaseEntity):
     name: str
     premium: bool
     admin: bool
-    default_hourly_rate: float
+    default_hourly_rate: Optional[float] = None
     default_currency: str
     only_admins_may_create_projects: bool
     only_admins_see_billable_rates: bool
     rounding: int
     rounding_minutes: int
     logo_url: Optional[HttpUrl] = None
+
+
+class User(BaseEntity):
+    api_token: Optional[str] = None
+    default_wid: Optional[int] = Field(alias="default_workspace_id", default=None)
+    email: EmailStr
+    fullname: str
+    beginning_of_week: int = 0
+    image_url: Optional[HttpUrl] = None
+    openid_enabled: Optional[bool] = None
+    timezone: Optional[str] = None
+    country_id: Optional[int] = None
+    projects: Optional[Project] = None
+    tags: Optional[Tag] = None
+    tasks: Optional[Task] = None
+    time_entries: Optional[TimeEntry] = None
+    updated_at: str
+    workspaces: Optional[Workspace] = None
 
 
 class WorkspaceUser(BaseEntity):

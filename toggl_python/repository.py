@@ -106,15 +106,14 @@ class BaseRepository(Api):
             if not self.DETAIL_URL:
                 raise AttributeError("Not defined DETAIL_URL")
             _url = (self.DETAIL_URL + "/" + url).format(id=_id)
-            return self._list(_url, entity, headers=self.HEADERS, param=params)
+            return self._list(_url, entity, headers=self.HEADERS, param=params, data_key=data_key)
         elif single_item:
-            _url = str(self.BASE_URL) + "/" + url
+            _url = str(self.BASE_URL) + f"{url}"
             return self._retrieve(
                 _url,
                 entity,
                 headers=self.HEADERS,
                 params=params,
-                data_key="data",
             )
         else:
             raise NotSupported
@@ -123,7 +122,7 @@ class BaseRepository(Api):
         self,
         _url: Union[str, httpx.URL],
         entity_class: Any,
-        data_key: Optional[str] = "data",
+        data_key: Optional[str] = None,
         **kwargs: Any,
     ) -> Any:
         params = kwargs
@@ -229,7 +228,7 @@ class Tasks(BaseRepository):
 
 
 class TimeEntries(BaseRepository):
-    LIST_URL = "time_entries"
+    LIST_URL = "me/time_entries"
     ENTITY_CLASS = TimeEntry
 
 
@@ -259,7 +258,7 @@ class Workspaces(BaseRepository):
         "users": {"url": "users", "entity": User, "detail": False},
         "clients": {"url": "clients", "entity": Client, "detail": False},
         "groups": {"url": "groups", "entity": Group, "detail": False},
-        "tasks": {"url": "tasks", "entity": Task, "detail": False},
+        "tasks": {"url": "tasks", "entity": Task, "data_key": "data", "detail": False},
         "tags": {"url": "tags", "entity": Tag, "detail": False},
         "workspace_users": {
             "url": "workspace_users",
