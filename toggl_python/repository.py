@@ -255,6 +255,7 @@ class Workspaces(BaseRepository):
     ENTITY_CLASS = Workspace
     ADDITIONAL_METHODS = {
         "projects": {"url": "projects", "entity": Project, "detail": False},
+        "detail_project": {"url": "projects", "entity": Project, "detail": True},
         "users": {"url": "users", "entity": User, "detail": False},
         "clients": {"url": "clients", "entity": Client, "detail": False},
         "groups": {"url": "groups", "entity": Group, "detail": False},
