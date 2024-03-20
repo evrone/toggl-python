@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "toggl_python"
-version = "0.2.8"
+version = "0.2.9"
 description = "Python wrapper for Toggl API."
 authors = ["Ivlev Denis <me@dierz.pro>"]
 readme = "README.md"
@@ -21,7 +21,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.12"
 httpx = {extras=["http2"], version="^0.25.1"}
-pydantic = "^2.5.0"
+pydantic = {extras = ["email"], version = "^2.5.1"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4.3"

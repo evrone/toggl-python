@@ -207,11 +207,6 @@ class Groups(BaseRepository):
     ENTITY_CLASS = Group
 
 
-class Projects(BaseRepository):
-    LIST_URL = "projects"
-    ENTITY_CLASS = Project
-
-
 class ProjectUsers(BaseRepository):
     LIST_URL = "project_users"
     ENTITY_CLASS = ProjectUser
@@ -220,11 +215,6 @@ class ProjectUsers(BaseRepository):
 class Tags(BaseRepository):
     LIST_URL = "tags"
     ENTITY_CLASS = Tag
-
-
-class Tasks(BaseRepository):
-    LIST_URL = "tasks"
-    ENTITY_CLASS = Task
 
 
 class TimeEntries(BaseRepository):
