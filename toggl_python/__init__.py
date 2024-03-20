@@ -18,7 +18,6 @@ from .entities import (
     Workspace,
     WorkspaceUser,
 )
-from .repository import Projects  # noqa: F401
 from .repository import (
     Clients,
     Dashboards,
@@ -26,7 +25,6 @@ from .repository import (
     ProjectUsers,
     ReportTimeEntries,
     Tags,
-    Tasks,
     TimeEntries,
     Users,
     Workspaces,
@@ -46,7 +44,6 @@ __all__ = [
     "Groups",
     "MostActiveUser",
     "Project",
-    "Projects",
     "ProjectUser",
     "ProjectUsers",
     "ReportTimeEntry",
@@ -54,7 +51,6 @@ __all__ = [
     "Tag",
     "Tags",
     "Task",
-    "Tasks",
     "TimeEntries",
     "TimeEntry",
     "TokenAuth",
