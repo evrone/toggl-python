@@ -2,7 +2,8 @@
 name = "toggl_python"
 version = "0.2.9"
 description = "Python wrapper for Toggl API."
-authors = ["Ivlev Denis <me@dierz.pro>"]
+authors = ["Evrone <mail@evrone.com>"]
+maintainers = ["Nifadev Vadim <vnifadev@evrone.com"]
 readme = "README.md"
 homepage = "https://github.com/evrone/toggl_python"
 repository = "https://github.com/evrone/toggl_python"
