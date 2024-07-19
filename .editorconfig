@@ -3,23 +3,15 @@ root = true
 [Makefile]
 indent_style = tab
 
-[*.{html,py,js,yml}]
+[*.{py,yml}]
 charset = utf-8
-
-[*.js]
-indent_style = space
-indent_size = 2
 
 [*.yml]
 indent_style = space
 indent_size = 2
 
-[*.html]
-indent_style = space
-indent_size = 4
-
 [*.py]
 indent_style = space
 indent_size = 4
-line_length = 79
+line_length = 100
 multi_line_output = 3
