@@ -22,48 +22,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-httpx = {extras=["http2"], version="^0.25.1"}
-pydantic = {extras = ["email"], version = "^2.5.1"}
-
-[tool.poetry.dev-dependencies]
-pytest = "^7.4.3"
-respx = "^0.20.2"
-black = "^23.11.0"
-ipython = "^8.17.2"
-mypy = "^1.7.0"
-coverage = "^7.3.2"
-flake8 = "^6.1.0"
-isort = "^5.8.0"
-pre-commit = "^3.5.0"
-
-[tool.black]
-line-length = 100
-target-version = ['py38']
-exclude = '''
-(
-  \.eggs
-  |\.git
-  |\.hg
-  |\.mypy_cache
-  |\.nox
-  |\.tox
-  |\.venv
-  |_build
-  |buck-out
-  |build
-  |dist
-)
-'''
-
-[tool.isort]
-line_length = 100
-sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-multi_line_output = 3
-known_django = "django"
-profile = "django"
-src_paths = "toggl_python"
-lines_after_imports = 2
+python = "^3.8.18"
 
 [build-system]
 requires = ["poetry-core"]
