@@ -10,6 +10,14 @@
 
 The package is currently broken because it uses **deprecated** Toggl API V8. Migration to V9 is currently in progress.
 
+## Development
+
+In order to run tests using different Python versions, please follow these steps:
+* Install `pyenv`
+* Install all supported Python versions - `pyenv install 3.8.* 3.9.* ...`
+* Run `pyenv local 3.8.* 3.9.* ...`
+* Run `poetry run nox`
+
 ## Credits
 -------
 
