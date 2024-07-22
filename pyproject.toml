@@ -3,7 +3,7 @@ name = "toggl_python"
 version = "0.2.9"
 description = "Python wrapper for Toggl API."
 authors = ["Evrone <mail@evrone.com>"]
-maintainers = ["Nifadev Vadim <vnifadev@evrone.com"]
+maintainers = ["Nifadev Vadim <vnifadev@evrone.com>"]
 readme = "README.md"
 homepage = "https://github.com/evrone/toggl_python"
 repository = "https://github.com/evrone/toggl_python"
@@ -24,6 +24,11 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8.18"
 httpx = {extras = ["http2"], version = "^0.27.0"}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.1"
+nox = "^2024.4.15"
+respx = "^0.21.1"
 
 [build-system]
 requires = ["poetry-core"]
