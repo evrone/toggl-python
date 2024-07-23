@@ -38,6 +38,7 @@ repos:
         name: test
         entry: poetry run nox
         pass_filenames: false
+        stages: [pre-push]
         language: python
         types: [python]
 
