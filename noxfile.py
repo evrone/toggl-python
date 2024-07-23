@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 import nox
 
+
 if TYPE_CHECKING:
     from nox.sessions import Session
 

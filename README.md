@@ -4,7 +4,7 @@
 
 
 * Based on open [Toggl API documentation](https://engineering.toggl.com/docs/)
-* [Documentation](https://toggl-python.readthedocs.io) 
+* [Documentation](https://toggl-python.readthedocs.io)
 
 ## Warning
 
@@ -23,4 +23,4 @@ In order to run tests using different Python versions, please follow these steps
 
 This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and the [cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage) project template.
 
-[<img src="https://evrone.com/logo/evrone-sponsored-logo.png" width=231>](https://evrone.com/?utm_source=github.com)  
+[<img src="https://evrone.com/logo/evrone-sponsored-logo.png" width=231>](https://evrone.com/?utm_source=github.com)

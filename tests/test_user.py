@@ -5,6 +5,7 @@ import pytest
 from toggl_python.auth import TokenAuth
 from toggl_python.entities.user import CurrentUser
 
+
 if TYPE_CHECKING:
     from respx import MockRouter
 

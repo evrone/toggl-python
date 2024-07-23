@@ -1,4 +1,3 @@
-from typing import Dict
 
 from toggl_python.api import ApiWrapper
 

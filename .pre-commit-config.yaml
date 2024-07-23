@@ -1,0 +1,48 @@
+default_language_version:
+  python: python3.8
+
+default_install_hook_types:
+  - pre-commit
+  - pre-push
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.4
+    hooks:
+      - id: ruff
+        args: [ --fix ]
+  # Spell Checker
+  -   repo: https://github.com/crate-ci/typos
+      rev: v1.23.3
+      hooks:
+      -   id: typos
+  # Git commit linter
+  -   repo: https://github.com/jorisroovers/gitlint
+      rev: v0.19.1
+      hooks:
+      -   id: gitlint
+  # Detect hardcoded secrets
+  -   repo: https://github.com/zricethezav/gitleaks
+      rev: v8.18.4
+      hooks:
+        - id: gitleaks
+  - repo: local
+    hooks:
+      - id: test
+        name: test
+        entry: poetry run nox
+        pass_filenames: false
+        stages: [pre-push]
+        language: python
+        types: [python]
+
+ci:
+    skip: [test, gitlint]
+    autofix_prs: false
+    autoupdate_schedule: monthly
