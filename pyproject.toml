@@ -24,6 +24,10 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8.18"
 httpx = {extras = ["http2"], version = "^0.27.0"}
+# Necessary for listing available timezones
+# use zoneinfo.available_timezones()
+backports-zoneinfo = {version = "^0.2.1", python = "3.8"}
+pydantic = {extras = ["email"], version = "^2.8.2"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.1"
@@ -60,6 +64,9 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
+# Move standard/third-party library import into a type-checking block
+# Necessary for valid Pydantic schemas
+"toggl_python/schemas/*" = ["TCH002", "TCH003"]
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2
