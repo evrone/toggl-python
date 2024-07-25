@@ -48,6 +48,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 src = ["toggl_python"]
 line-length = 99
+unsafe-fixes = true
 extend-exclude = [
     "docs/*",
     ".venv",
@@ -65,6 +66,10 @@ ignore = [
     "D105", # Missing docstring in magic method
     "D106", # Missing docstring in public nested class
     "D107", # Missing docstring in __init__
+    "UP007", # Use `X | Y` for type annotations (not supported on current Python version - 3.8)
+    # Ignored because function args emulates query args which could be boolean
+    "FBT001", # Boolean-typed positional argument in function definition
+    "FBT002", # Boolean default positional argument in function definition
 ]
 
 [tool.ruff.lint.per-file-ignores]
