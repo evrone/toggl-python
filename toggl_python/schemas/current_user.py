@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
 from pydantic.fields import Field
@@ -22,19 +22,19 @@ class MeResponse(BaseModel):
     id: int
     image_url: Url
     intercom_hash: Optional[str] = Field(default=None, min_length=64, max_length=64)
-    oauth_provides: Optional[list[str]] = None
+    oauth_provides: Optional[List[str]] = None
     openid_email: Optional[EmailStr] = None
     openid_enabled: bool
-    options: Optional[list] = None  # not sure, maybe not a list
+    options: Optional[List] = None  # not sure, maybe not a list
     timezone: str
     toggl_accounts_id: str = Field(min_length=22, max_length=22)
     updated_at: datetime
 
 
 class MeResponseWithRelatedData(MeResponse):
-    clients: Optional[list]
-    projects: Optional[list]
-    tags: Optional[list]
-    time_entries: Optional[list]
-    workspaces: list  # Default workspace is created after signup,
+    clients: Optional[List]
+    projects: Optional[List]
+    tags: Optional[List]
+    time_entries: Optional[List]
+    workspaces: List  # Default workspace is created after signup,
     # check if it is possible not to have workspace at all
