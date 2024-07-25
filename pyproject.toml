@@ -71,6 +71,7 @@ ignore = [
     # Ignored because function args emulates query args which could be boolean
     "FBT001", # Boolean-typed positional argument in function definition
     "FBT002", # Boolean default positional argument in function definition
+    "N818", # Exception name should be named with Error suffix
 ]
 
 [tool.ruff.lint.per-file-ignores]
