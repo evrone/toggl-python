@@ -66,6 +66,7 @@ ignore = [
     "D105", # Missing docstring in magic method
     "D106", # Missing docstring in public nested class
     "D107", # Missing docstring in __init__
+    "UP006", # Use `list` instead of `List` for type annotation
     "UP007", # Use `X | Y` for type annotations (not supported on current Python version - 3.8)
     # Ignored because function args emulates query args which could be boolean
     "FBT001", # Boolean-typed positional argument in function definition
