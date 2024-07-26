@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Union
 import httpx
 import pytest
 from pydantic import ValidationError
-from toggl_python.auth import BasicAuth, TokenAuth
+from toggl_python.auth import BasicAuth
 from toggl_python.entities.user import CurrentUser
 from toggl_python.exceptions import BadRequest
 from toggl_python.schemas.current_user import (
@@ -14,12 +14,7 @@ from toggl_python.schemas.current_user import (
     UpdateMeResponse,
 )
 
-from tests.responses.me_get import (
-    FAKE_TOKEN,
-    ME_RESPONSE,
-    ME_RESPONSE_SHORT,
-    ME_RESPONSE_WITH_RELATED_DATA,
-)
+from tests.responses.me_get import ME_RESPONSE, ME_RESPONSE_SHORT, ME_RESPONSE_WITH_RELATED_DATA
 from tests.responses.me_put import UPDATE_ME_RESPONSE
 
 
@@ -27,38 +22,34 @@ if TYPE_CHECKING:
     from respx import MockRouter
 
 
-def test_logged__ok(response_mock: MockRouter) -> None:
+def test_logged__ok(response_mock: MockRouter, authed_current_user: CurrentUser) -> None:
     mocked_route = response_mock.get("/me/logged").mock(
         return_value=httpx.Response(status_code=200),
     )
-    auth = TokenAuth("token")
-    user = CurrentUser(auth=auth)
 
-    result = user.logged()
+    result = authed_current_user.logged()
 
     assert mocked_route.called is True
     assert result is True
 
 
-def test_logged__exception_is_raised(response_mock: MockRouter) -> None:
+def test_logged__exception_is_raised(
+    response_mock: MockRouter, authed_current_user: CurrentUser
+) -> None:
     mocked_route = response_mock.get("/me/logged").mock(
         return_value=httpx.Response(status_code=403),
     )
-    auth = TokenAuth("token")
-    user = CurrentUser(auth=auth)
 
     with pytest.raises(httpx.HTTPStatusError):
-        _ = user.logged()
+        _ = authed_current_user.logged()
 
     assert mocked_route.called is True
 
 
-def test_me__ok(response_mock: MockRouter) -> None:
+def test_me__ok(response_mock: MockRouter, authed_current_user: CurrentUser) -> None:
     mocked_route = response_mock.get("/me").mock(
         return_value=httpx.Response(status_code=200, json=ME_RESPONSE),
     )
-    auth = TokenAuth(FAKE_TOKEN)
-    user = CurrentUser(auth=auth)
     expected_result = MeResponse(
         api_token=ME_RESPONSE["api_token"],
         at=ME_RESPONSE["at"],
@@ -81,7 +72,7 @@ def test_me__ok(response_mock: MockRouter) -> None:
         updated_at=ME_RESPONSE["updated_at"],
     )
 
-    result = user.me()
+    result = authed_current_user.me()
 
     assert mocked_route.called is True
     assert result == expected_result
@@ -118,12 +109,12 @@ def test_me__ok__with_empty_fields(response_mock: MockRouter) -> None:
     assert result == expected_result
 
 
-def test_me__ok_with_related_data(response_mock: MockRouter) -> None:
+def test_me__ok_with_related_data(
+    response_mock: MockRouter, authed_current_user: CurrentUser
+) -> None:
     mocked_route = response_mock.get("/me").mock(
         return_value=httpx.Response(status_code=200, json=ME_RESPONSE_WITH_RELATED_DATA),
     )
-    auth = TokenAuth(FAKE_TOKEN)
-    user = CurrentUser(auth=auth)
     expected_result = MeResponseWithRelatedData(
         api_token=ME_RESPONSE_WITH_RELATED_DATA["api_token"],
         at=ME_RESPONSE_WITH_RELATED_DATA["at"],
@@ -151,7 +142,7 @@ def test_me__ok_with_related_data(response_mock: MockRouter) -> None:
         workspaces=ME_RESPONSE_WITH_RELATED_DATA["workspaces"],
     )
 
-    result = user.me(with_related_data=True)
+    result = authed_current_user.me(with_related_data=True)
 
     assert mocked_route.called is True
     assert result == expected_result
