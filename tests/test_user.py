@@ -62,7 +62,7 @@ def test_me__ok__with_empty_fields(response_mock: MockRouter) -> None:
     mocked_route = response_mock.get("/me").mock(
         return_value=httpx.Response(status_code=200, json=ME_RESPONSE_SHORT),
     )
-    auth = BasicAuth(username="username", password="pass")  # noqa: S106
+    auth = BasicAuth(username="username", password="pass")
     user = CurrentUser(auth=auth)
     expected_result = MeResponse.model_validate(ME_RESPONSE_SHORT)
 
@@ -211,3 +211,60 @@ def test_update_me__invalid_fullname(authed_current_user: CurrentUser) -> None:
 
     with pytest.raises(ValidationError, match=error_message):
         _ = authed_current_user.update_me(fullname="")
+
+
+def test_change_password__ok(response_mock: MockRouter, authed_current_user: CurrentUser) -> None:
+    mocked_route = response_mock.put("/me").mock(
+        return_value=httpx.Response(status_code=200, json=UPDATE_ME_RESPONSE),
+    )
+
+    result = authed_current_user.change_password(
+        current_password="paSsw0rd",
+        new_password="neW_passw0rd",
+    )
+
+    assert mocked_route.called is True
+    assert result is True
+
+
+def test_change_password__equal_current_and_new_passwords(
+    authed_current_user: CurrentUser,
+) -> None:
+    error_message = "New password should differ from current password"
+
+    with pytest.raises(ValidationError, match=error_message):
+        _ = authed_current_user.change_password(
+            current_password="current_Passw0rd", new_password="current_Passw0rd"
+        )
+
+
+def test_change_password__invalid_current_password(
+    response_mock: MockRouter, authed_current_user: CurrentUser
+) -> None:
+    error_message = "Current password is not valid"
+    mocked_route = response_mock.put("/me").mock(
+        return_value=httpx.Response(status_code=400, text=error_message),
+    )
+
+    with pytest.raises(BadRequest, match=error_message):
+        _ = authed_current_user.change_password(
+            current_password="4incorrect_passworD",
+            new_password="New_passw0rd",
+        )
+
+    assert mocked_route.called is True
+
+
+@pytest.mark.parametrize(
+    argnames=("value"),
+    argvalues=["1", "12345678", "12345Qw"],
+    ids=("Too short", "No symbols and chars", "No symbols"),
+)
+def test_update_me__weak_new_password(authed_current_user: CurrentUser, value: str) -> None:
+    error_message = "Password is too weak"
+
+    with pytest.raises(ValidationError, match=error_message):
+        _ = authed_current_user.change_password(
+            current_password="current_password",
+            new_password=value,
+        )

@@ -6,9 +6,16 @@ try:
 except ImportError:
     from backports import zoneinfo
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, List, Optional
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    SecretStr,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 from pydantic.fields import Field
 from pydantic_core import Url
 
@@ -77,3 +84,41 @@ class MeResponseWithRelatedData(MeResponse):
     time_entries: Optional[List]
     workspaces: List  # Default workspace is created after signup,
     # check if it is possible not to have workspace at all
+
+
+class UpdateMePasswordRequest(BaseModel):
+    current_password: SecretStr = Field()
+    password: SecretStr = Field(alias="new_password")
+
+    @model_validator(mode="before")
+    @classmethod
+    def check_if_passwords_are_equal(cls, data: Dict[str, str]) -> Dict[str, str]:
+        if data["current_password"] == data["new_password"]:
+            error_message = "New password should differ from current password"
+            raise ValueError(error_message)
+
+        return data
+
+    @field_validator("password")
+    @classmethod
+    def check_if_password_is_weak(cls, value: SecretStr) -> SecretStr:
+        min_password_length = 8
+        new_password = value.get_secret_value()
+
+        if (
+            len(new_password) >= min_password_length
+            and any(char.isupper() for char in new_password)
+            and any(char.islower() for char in new_password)
+        ):
+            return value
+
+        error_message = (
+            "Password is too weak. Strong password should contain min 8 characters, "
+            "at least 1 uppercase and 1 lowercase letters"
+        )
+        raise ValueError(error_message)
+
+    @field_serializer("current_password", "password", when_used="json")
+    def reveal_secret(self, value: SecretStr) -> str:
+        """Reveal secrets on `model_dump_json` call."""
+        return value.get_secret_value()

@@ -9,6 +9,7 @@ from toggl_python.exceptions import BadRequest
 from toggl_python.schemas.current_user import (
     MeResponse,
     MeResponseWithRelatedData,
+    UpdateMePasswordRequest,
     UpdateMeRequest,
     UpdateMeResponse,
 )
@@ -16,6 +17,8 @@ from toggl_python.schemas.current_user import (
 
 if TYPE_CHECKING:
     from pydantic import EmailStr
+
+
 class CurrentUser(ApiWrapper):
     prefix: str = "/me"
 
@@ -71,3 +74,23 @@ class CurrentUser(ApiWrapper):
 
         response_body = response.json()
         return UpdateMeResponse.model_validate(response_body)
+
+    def change_password(self, current_password: str, new_password: str) -> bool:
+        """Validate and change user password.
+
+        API response does not indicate about successful password change,
+        that is why return if response is successful.
+        """
+        payload_schema = UpdateMePasswordRequest(
+            current_password=current_password, new_password=new_password
+        )
+        payload = payload_schema.model_dump_json()
+
+        response = self.client.put(url=self.prefix, content=payload)
+
+        try:
+            _ = response.raise_for_status()
+        except HTTPStatusError as base_exception:
+            raise BadRequest(base_exception.response.text) from None
+
+        return response.is_success
