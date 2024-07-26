@@ -21,9 +21,18 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 
+
+[project]
+name = "toggl_python"
+requires-python = ">=3.8"
+
 [tool.poetry.dependencies]
 python = "^3.8.18"
 httpx = {extras = ["http2"], version = "^0.27.0"}
+# Necessary for listing available timezones
+# use zoneinfo.available_timezones()
+backports-zoneinfo = {version = "^0.2.1", python = "3.8"}
+pydantic = {extras = ["email"], version = "^2.8.2"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.1"
@@ -39,6 +48,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 src = ["toggl_python"]
 line-length = 99
+unsafe-fixes = true
 extend-exclude = [
     "docs/*",
     ".venv",
@@ -48,6 +58,7 @@ extend-exclude = [
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "COM812", # Trailing comma missing
     "D100", # Missing docstring in public module
     "D101", # Missing docstring in public class
     "D102", # Missing docstring in public method
@@ -56,10 +67,22 @@ ignore = [
     "D105", # Missing docstring in magic method
     "D106", # Missing docstring in public nested class
     "D107", # Missing docstring in __init__
+    "UP006", # Use `list` instead of `List` for type annotation
+    "UP007", # Use `X | Y` for type annotations (not supported on current Python version - 3.8)
+    # Ignored because function args emulates query args which could be boolean
+    "FBT001", # Boolean-typed positional argument in function definition
+    "FBT002", # Boolean default positional argument in function definition
+    "N818", # Exception name should be named with Error suffix
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"]
+"tests/*" = [
+    "S101",
+    "S106", # Possible hardcoded password assigned to argument
+]
+# Move standard/third-party library import into a type-checking block
+# Necessary for valid Pydantic schemas
+"toggl_python/schemas/*" = ["TCH002", "TCH003"]
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2
