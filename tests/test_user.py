@@ -9,10 +9,13 @@ from toggl_python.auth import BasicAuth
 from toggl_python.entities.user import CurrentUser
 from toggl_python.exceptions import BadRequest
 from toggl_python.schemas.current_user import (
+    DateFormat,
+    DurationFormat,
     MeFeaturesResponse,
     MePreferencesResponse,
     MeResponse,
     MeResponseWithRelatedData,
+    TimeFormat,
     UpdateMeResponse,
 )
 
@@ -303,3 +306,62 @@ def test_preferences__ok(response_mock: MockRouter, authed_current_user: Current
 
     assert mocked_route.called is True
     assert result == expected_result
+
+
+@pytest.mark.parametrize(
+    argnames=("field_name", "field_value"),
+    argvalues=[
+        ("date_format", DateFormat.dmy_slash.value),
+        ("duration_format", DurationFormat.classic.value),
+        ("time_format", TimeFormat.hour_24.value),
+    ],
+)
+def test_update_preferences__ok(
+    response_mock: MockRouter,
+    authed_current_user: CurrentUser,
+    field_name: str,
+    field_value: str,
+) -> None:
+    payload = {field_name: field_value}
+    fake_response = ME_PREFERENCES_RESPONSE.copy()
+    fake_response.update(**payload)
+    mocked_route = response_mock.put("/me/preferences").mock(
+        return_value=httpx.Response(status_code=200, json=fake_response),
+    )
+    expected_result = MePreferencesResponse.model_validate(fake_response)
+
+    result = authed_current_user.update_preferences(**payload)
+
+    assert mocked_route.called is True
+    assert result == expected_result
+
+
+def test_update_preferences__invalid_duration_format(authed_current_user: CurrentUser) -> None:
+    all_values = ", ".join(f"'{item.value}'" for item in DurationFormat)
+    last_value = DurationFormat.decimal.value
+    allowed_values = all_values.replace(f", '{last_value}'", f" or '{last_value}'")
+    error_message = f"Input should be {allowed_values}"
+
+    with pytest.raises(ValidationError, match=error_message):
+        _ = authed_current_user.update_preferences(duration_format="extended")
+
+
+def test_update_preferences__invalid_time_format(authed_current_user: CurrentUser) -> None:
+    all_values = ", ".join(f"'{item.value}'" for item in TimeFormat)
+    last_value = TimeFormat.hour_24.value
+    allowed_values = all_values.replace(f", '{last_value}'", f" or '{last_value}'")
+    error_message = f"Input should be {allowed_values}"
+
+    with pytest.raises(ValidationError, match=error_message):
+        _ = authed_current_user.update_preferences(time_format="hh:mm B")
+
+
+def test_update_preferences__invalid_date_format(authed_current_user: CurrentUser) -> None:
+    all_values = ", ".join(f"'{item.value}'" for item in DateFormat)
+    last_value = DateFormat.dmy_dot.value
+    allowed_values = all_values.replace(f", '{last_value}'", f" or '{last_value}'")
+    error_message = f"Input should be {allowed_values}"
+
+
+    with pytest.raises(ValidationError, match=error_message):
+        _ = authed_current_user.update_preferences(date_format="DDMMYY")

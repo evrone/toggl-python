@@ -4,11 +4,15 @@ from typing import TYPE_CHECKING, List, Optional
 
 from toggl_python.api import ApiWrapper
 from toggl_python.schemas.current_user import (
+    DateFormat,
+    DurationFormat,
     MeFeaturesResponse,
     MePreferencesResponse,
     MeResponse,
     MeResponseWithRelatedData,
+    TimeFormat,
     UpdateMePasswordRequest,
+    UpdateMePreferencesRequest,
     UpdateMeRequest,
     UpdateMeResponse,
 )
@@ -100,4 +104,27 @@ class CurrentUser(ApiWrapper):
         self.raise_for_status(response)
         response_body = response.json()
 
+        return MePreferencesResponse.model_validate(response_body)
+
+    def update_preferences(
+        self,
+        date_format: Optional[DateFormat] = None,
+        duration_format: Optional[DurationFormat] = None,
+        time_format: Optional[TimeFormat] = None,
+    ) -> MePreferencesResponse:
+        """Update different formats using pre-defined Enums.
+
+        API documentation is not up to date, available fields to update are found manually.
+        """
+        payload_schema = UpdateMePreferencesRequest(
+            date_format=date_format,
+            duration_format=duration_format,
+            time_format=time_format,
+        )
+        payload = payload_schema.model_dump_json(exclude_none=True)
+
+        response = self.client.put(url=f"{self.prefix}/preferences", json=payload)
+        self.raise_for_status(response)
+
+        response_body = response.json()
         return MePreferencesResponse.model_validate(response_body)

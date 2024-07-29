@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from enum import Enum
+
 from toggl_python.schemas.base import BaseSchema
 
 
@@ -19,6 +21,26 @@ from pydantic import (
 )
 from pydantic.fields import Field
 from pydantic_core import Url
+
+
+class DateFormat(str, Enum):
+    mdy_slash = "MM/DD/YYYY"
+    dmy_dash = "DD-MM-YYYY"
+    mdy_dash = "MM-DD-YYYY"
+    ymd_dash = "YYYY-MM-DD"
+    dmy_slash = "DD/MM/YYYY"
+    dmy_dot = "DD.MM.YYYY"
+
+
+class DurationFormat(str, Enum):
+    classic = "classic"
+    improved = "improved"
+    decimal = "decimal"
+
+
+class TimeFormat(str, Enum):
+    hour_12 = "h:mm A"
+    hour_24 = "h:mm"
 
 
 class MeResponseBase(BaseSchema):
@@ -73,7 +95,6 @@ class UpdateMeRequest(BaseSchema):
 
 
 class UpdateMeResponse(MeResponseBase):
-    # Not present in API documentation
     toggl_accounts_updated_at: datetime
 
 
@@ -87,7 +108,7 @@ class MeResponseWithRelatedData(MeResponse):
 
 
 class UpdateMePasswordRequest(BaseSchema):
-    current_password: SecretStr = Field()
+    current_password: SecretStr
     password: SecretStr = Field(alias="new_password")
 
     @model_validator(mode="before")
@@ -151,3 +172,9 @@ class MePreferencesResponse(BaseSchema):
 class AlphaFeatureResponse(BaseSchema):
     code: str
     enabled: bool
+
+
+class UpdateMePreferencesRequest(BaseSchema):
+    date_format: Optional[DateFormat] = None
+    duration_format: Optional[DurationFormat] = None
+    time_format: Optional[TimeFormat] = None
