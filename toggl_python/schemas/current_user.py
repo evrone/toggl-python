@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from toggl_python.schemas.base import BaseSchema
+
 
 try:
     import zoneinfo
@@ -9,7 +11,6 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 from pydantic import (
-    BaseModel,
     EmailStr,
     SecretStr,
     field_serializer,
@@ -20,7 +21,7 @@ from pydantic.fields import Field
 from pydantic_core import Url
 
 
-class MeResponseBase(BaseModel):
+class MeResponseBase(BaseSchema):
     api_token: Optional[str] = Field(default=None, min_length=32, max_length=32)
     at: datetime
     beginning_of_week: int = Field(ge=0, le=6, description="0 equals to Sunday, 1 - Monday, etc.")
@@ -45,7 +46,7 @@ class MeResponse(MeResponseBase):
     intercom_hash: Optional[str] = Field(default=None, min_length=64, max_length=64)
 
 
-class UpdateMeRequest(BaseModel):
+class UpdateMeRequest(BaseSchema):
     beginning_of_week: Optional[int] = Field(default=None, ge=0, le=6)
     country_id: Optional[int] = Field(
         default=None,
@@ -85,7 +86,7 @@ class MeResponseWithRelatedData(MeResponse):
     # check if it is possible not to have workspace at all
 
 
-class UpdateMePasswordRequest(BaseModel):
+class UpdateMePasswordRequest(BaseSchema):
     current_password: SecretStr = Field()
     password: SecretStr = Field(alias="new_password")
 
@@ -123,12 +124,12 @@ class UpdateMePasswordRequest(BaseModel):
         return value.get_secret_value()
 
 
-class MeFeaturesResponse(BaseModel):
+class MeFeaturesResponse(BaseSchema):
     workspace_id: int
     features: List[MeFeatureResponse]
 
 
-class MeFeatureResponse(BaseModel):
+class MeFeatureResponse(BaseSchema):
     feature_id: int
     enabled: bool
     name: str
