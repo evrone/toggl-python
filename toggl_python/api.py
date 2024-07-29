@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from httpx import Client
+from httpx import Client, HTTPStatusError, Response
+
+from toggl_python.exceptions import BadRequest
 
 
 if TYPE_CHECKING:
@@ -20,3 +22,10 @@ class ApiWrapper:
             headers=COMMON_HEADERS,
             http2=True,
         )
+
+    def raise_for_status(self, response: Response) -> None:
+        """Disable exception chaining to avoid huge not informative traceback."""
+        try:
+            _ = response.raise_for_status()
+        except HTTPStatusError as base_exception:
+            raise BadRequest(base_exception.response.text) from None
