@@ -73,3 +73,17 @@ ME_RESPONSE_WITH_RELATED_DATA: NESTED_RESPONSE_TYPE = {
     "tags": [],
     "workspaces": [],
 }
+
+ME_FEATURES_RESPONSE: List[Dict[str, Union[int, List[Dict]]]] = [
+    {
+        "features": [
+            {"enabled": True, "feature_id": 0, "name": "free"},
+            {"enabled": False, "feature_id": 13, "name": "pro"},
+            {"enabled": False, "feature_id": 15, "name": "business"},
+            {"enabled": False, "feature_id": 55, "name": "tracking_reminders"},
+            {"enabled": False, "feature_id": 64, "name": "tasks"},
+            {"enabled": False, "feature_id": 65, "name": "project_dashboard"},
+        ],
+        "workspace_id": 43644207,
+    }
+]

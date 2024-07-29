@@ -121,3 +121,14 @@ class UpdateMePasswordRequest(BaseModel):
     def reveal_secret(self, value: SecretStr) -> str:
         """Reveal secrets on `model_dump_json` call."""
         return value.get_secret_value()
+
+
+class MeFeaturesResponse(BaseModel):
+    workspace_id: int
+    features: List[MeFeatureResponse]
+
+
+class MeFeatureResponse(BaseModel):
+    feature_id: int
+    enabled: bool
+    name: str

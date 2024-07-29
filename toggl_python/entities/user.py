@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from httpx import HTTPStatusError
 
 from toggl_python.api import ApiWrapper
 from toggl_python.exceptions import BadRequest
 from toggl_python.schemas.current_user import (
+    MeFeaturesResponse,
     MeResponse,
     MeResponseWithRelatedData,
     UpdateMePasswordRequest,
@@ -94,3 +95,14 @@ class CurrentUser(ApiWrapper):
             raise BadRequest(base_exception.response.text) from None
 
         return response.is_success
+
+    def features(self) -> List[MeFeaturesResponse]:
+        response = self.client.get(url=f"{self.prefix}/features")
+        _ = response.raise_for_status()
+
+        response_body = response.json()
+
+        return [
+            MeFeaturesResponse.model_validate(workspace_features)
+            for workspace_features in response_body
+        ]

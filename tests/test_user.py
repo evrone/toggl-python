@@ -9,12 +9,18 @@ from toggl_python.auth import BasicAuth
 from toggl_python.entities.user import CurrentUser
 from toggl_python.exceptions import BadRequest
 from toggl_python.schemas.current_user import (
+    MeFeaturesResponse,
     MeResponse,
     MeResponseWithRelatedData,
     UpdateMeResponse,
 )
 
-from tests.responses.me_get import ME_RESPONSE, ME_RESPONSE_SHORT, ME_RESPONSE_WITH_RELATED_DATA
+from tests.responses.me_get import (
+    ME_FEATURES_RESPONSE,
+    ME_RESPONSE,
+    ME_RESPONSE_SHORT,
+    ME_RESPONSE_WITH_RELATED_DATA,
+)
 from tests.responses.me_put import UPDATE_ME_RESPONSE
 
 
@@ -268,3 +274,18 @@ def test_update_me__weak_new_password(authed_current_user: CurrentUser, value: s
             current_password="current_password",
             new_password=value,
         )
+
+
+def test_features__ok(response_mock: MockRouter, authed_current_user: CurrentUser) -> None:
+    mocked_route = response_mock.get("/me/features").mock(
+        return_value=httpx.Response(status_code=200, json=ME_FEATURES_RESPONSE),
+    )
+    expected_result = [
+        MeFeaturesResponse.model_validate(workspace_features)
+        for workspace_features in ME_FEATURES_RESPONSE
+    ]
+
+    result = authed_current_user.features()
+
+    assert mocked_route.called is True
+    assert result == expected_result
