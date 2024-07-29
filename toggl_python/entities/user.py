@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List, Optional
 from toggl_python.api import ApiWrapper
 from toggl_python.schemas.current_user import (
     MeFeaturesResponse,
+    MePreferencesResponse,
     MeResponse,
     MeResponseWithRelatedData,
     UpdateMePasswordRequest,
@@ -93,3 +94,10 @@ class CurrentUser(ApiWrapper):
             MeFeaturesResponse.model_validate(workspace_features)
             for workspace_features in response_body
         ]
+
+    def preferences(self) -> MePreferencesResponse:
+        response = self.client.get(url=f"{self.prefix}/preferences")
+        self.raise_for_status(response)
+        response_body = response.json()
+
+        return MePreferencesResponse.model_validate(response_body)

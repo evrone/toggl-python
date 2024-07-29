@@ -133,3 +133,21 @@ class MeFeatureResponse(BaseSchema):
     feature_id: int
     enabled: bool
     name: str
+
+
+class MePreferencesResponse(BaseSchema):
+    beginning_of_week: int = Field(alias="BeginningOfWeek")
+    alpha_features: List[AlphaFeatureResponse]
+    date_format: str
+    duration_format: str
+    pg_time_zone_name: str
+    record_timeline: bool
+    send_product_emails: bool
+    send_timer_notifications: bool
+    send_weekly_report: bool
+    timeofday_format: str
+
+
+class AlphaFeatureResponse(BaseSchema):
+    code: str
+    enabled: bool

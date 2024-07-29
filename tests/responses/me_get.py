@@ -87,3 +87,21 @@ ME_FEATURES_RESPONSE: List[Dict[str, Union[int, List[Dict]]]] = [
         "workspace_id": 43644207,
     }
 ]
+
+ME_PREFERENCES_RESPONSE: Dict[str, Union[int, str, List[Dict]]] = {
+    "BeginningOfWeek": 1,
+    "alpha_features": [
+        {"code": "paging_project_list", "enabled": False},
+        {"code": "jira_v2", "enabled": False},
+        {"code": "alerts_v2", "enabled": True},
+        {"code": "analytics", "enabled": True},
+    ],
+    "date_format": "MM/DD/YYYY",
+    "duration_format": "improved",
+    "pg_time_zone_name": "Europe/Moscow",
+    "record_timeline": False,
+    "send_product_emails": False,
+    "send_timer_notifications": True,
+    "send_weekly_report": False,
+    "timeofday_format": "H:mm",
+}

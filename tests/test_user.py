@@ -10,6 +10,7 @@ from toggl_python.entities.user import CurrentUser
 from toggl_python.exceptions import BadRequest
 from toggl_python.schemas.current_user import (
     MeFeaturesResponse,
+    MePreferencesResponse,
     MeResponse,
     MeResponseWithRelatedData,
     UpdateMeResponse,
@@ -17,6 +18,7 @@ from toggl_python.schemas.current_user import (
 
 from tests.responses.me_get import (
     ME_FEATURES_RESPONSE,
+    ME_PREFERENCES_RESPONSE,
     ME_RESPONSE,
     ME_RESPONSE_SHORT,
     ME_RESPONSE_WITH_RELATED_DATA,
@@ -286,6 +288,18 @@ def test_features__ok(response_mock: MockRouter, authed_current_user: CurrentUse
     ]
 
     result = authed_current_user.features()
+
+    assert mocked_route.called is True
+    assert result == expected_result
+
+
+def test_preferences__ok(response_mock: MockRouter, authed_current_user: CurrentUser) -> None:
+    mocked_route = response_mock.get("/me/preferences").mock(
+        return_value=httpx.Response(status_code=200, json=ME_PREFERENCES_RESPONSE),
+    )
+    expected_result = MePreferencesResponse.model_validate(ME_PREFERENCES_RESPONSE)
+
+    result = authed_current_user.preferences()
 
     assert mocked_route.called is True
     assert result == expected_result
