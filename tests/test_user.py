@@ -46,7 +46,7 @@ def test_logged__exception_is_raised(
         return_value=httpx.Response(status_code=403),
     )
 
-    with pytest.raises(httpx.HTTPStatusError):
+    with pytest.raises(BadRequest):
         _ = authed_current_user.logged()
 
     assert mocked_route.called is True
