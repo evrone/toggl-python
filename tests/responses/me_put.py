@@ -19,7 +19,6 @@ UPDATE_ME_RESPONSE: NESTED_RESPONSE_TYPE = {
     "image_url": "https://assets.track.toggl.com/images/profile.png",
     "openid_email": None,
     "openid_enabled": False,
-    "options": [],
     "timezone": "Europe/London",
     "toggl_accounts_id": "uWGsHAeXZGhJvQ3XjdY63h",
     "toggl_accounts_updated_at": "2024-05-16T12:01:24.447981Z",

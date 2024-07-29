@@ -35,7 +35,6 @@ class MeResponseBase(BaseModel):
     oauth_provides: Optional[List[str]] = None
     openid_email: Optional[EmailStr] = None
     openid_enabled: bool
-    options: Optional[List] = None  # not sure, maybe not a list
     timezone: str
     toggl_accounts_id: str = Field(min_length=22, max_length=22)
     updated_at: datetime
