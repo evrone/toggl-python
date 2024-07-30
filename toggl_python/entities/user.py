@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from toggl_python.api import ApiWrapper
 from toggl_python.schemas.current_user import (
@@ -16,6 +16,7 @@ from toggl_python.schemas.current_user import (
     UpdateMeRequest,
     UpdateMeResponse,
 )
+from toggl_python.schemas.time_entry import MeTimeEntryResponse, MeTimeEntryWithMetaResponse
 
 
 if TYPE_CHECKING:
@@ -128,3 +129,22 @@ class CurrentUser(ApiWrapper):
 
         response_body = response.json()
         return MePreferencesResponse.model_validate(response_body)
+
+    def get_time_entry(
+        self, time_entry_id: int, meta: bool = False
+    ) -> Union[MeTimeEntryResponse, MeTimeEntryWithMetaResponse]:
+        """Intentionally use the same schema for requests with `include_sharing=true`.
+
+        Tested responses do not differ from requests with `include_sharing=false`
+        that is why there is no `include_sharing` method argument.
+        """
+        response = self.client.get(
+            url=f"{self.prefix}/time_entries/{time_entry_id}",
+            params={"meta": meta},
+        )
+        self.raise_for_status(response)
+
+        response_schema = MeTimeEntryWithMetaResponse if meta else MeTimeEntryResponse
+
+        response_body = response.json()
+        return response_schema.model_validate(response_body)
