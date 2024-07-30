@@ -148,3 +148,11 @@ class CurrentUser(ApiWrapper):
 
         response_body = response.json()
         return response_schema.model_validate(response_body)
+
+    def get_current_time_entry(self) -> Optional[MeTimeEntryResponse]:
+        """Return empty response if there is no running TimeEntry."""
+        response = self.client.get(url=f"{self.prefix}/time_entries/current")
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return MeTimeEntryResponse.model_validate(response_body) if response_body else None

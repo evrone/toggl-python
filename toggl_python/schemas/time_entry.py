@@ -19,7 +19,7 @@ class MeTimeEntryResponseBase(BaseSchema):
     start: datetime
     stop: Optional[datetime]
     tag_ids: List[int]
-    tags: List
+    tags: List[str]
     task_id: Optional[int]
     user_id: int
     workspace_id: int
