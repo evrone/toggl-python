@@ -20,6 +20,7 @@ from toggl_python.schemas.time_entry import (
     MeTimeEntryQueryParams,
     MeTimeEntryResponse,
     MeTimeEntryWithMetaResponse,
+    MeWebTimerResponse,
 )
 
 
@@ -192,3 +193,10 @@ class CurrentUser(ApiWrapper):
 
         response_body = response.json()
         return [response_schema.model_validate(time_entry) for time_entry in response_body]
+
+    def get_web_timer(self) -> MeWebTimerResponse:
+        response = self.client.get(url=f"{self.prefix}/web-timer")
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return MeWebTimerResponse.model_validate(response_body)

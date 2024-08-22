@@ -8,8 +8,13 @@ import pytest
 from httpx import Response
 from pydantic import ValidationError
 from toggl_python.exceptions import BadRequest
-from toggl_python.schemas.time_entry import MeTimeEntryResponse, MeTimeEntryWithMetaResponse
+from toggl_python.schemas.time_entry import (
+    MeTimeEntryResponse,
+    MeTimeEntryWithMetaResponse,
+    MeWebTimerResponse,
+)
 
+from tests.responses.me_get import ME_WEB_TIMER_RESPONSE
 from tests.responses.time_entry_get import ME_TIME_ENTRY_RESPONSE, ME_TIME_ENTRY_WITH_META_RESPONSE
 
 
@@ -184,6 +189,7 @@ def test_get_time_entries__invalid_query_params(
     with pytest.raises(BadRequest, match=error_message):
         _ = authed_current_user.get_time_entries(**query_params)
 
+
 @patch("toggl_python.schemas.time_entry.datetime")
 def test_get_time_entries__too_old_since_value(
     mocked_datetime: Mock, authed_current_user: CurrentUser
@@ -194,3 +200,15 @@ def test_get_time_entries__too_old_since_value(
 
     with pytest.raises(ValidationError, match=error_message):
         _ = authed_current_user.get_time_entries(since=since)
+
+
+def test_get_web_timer__ok(response_mock: MockRouter, authed_current_user: CurrentUser) -> None:
+    mocked_route = response_mock.get("/me/web-timer").mock(
+        return_value=Response(status_code=200, json=ME_WEB_TIMER_RESPONSE),
+    )
+    expected_result = MeWebTimerResponse.model_validate(ME_WEB_TIMER_RESPONSE)
+
+    result = authed_current_user.get_web_timer()
+
+    assert mocked_route.called is True
+    assert result == expected_result

@@ -9,29 +9,28 @@ from toggl_python.schemas.base import BaseSchema
 
 
 class MeTimeEntryResponseBase(BaseSchema):
-    at: datetime
     billable: bool
     description: Optional[str]
-    duration: int
-    duronly: bool
-    id: int
-    permissions: Optional[List]
     project_id: Optional[int]
-    server_deleted_at: Optional[datetime]
-    start: datetime
-    stop: Optional[datetime]
     tag_ids: List[int]
-    tags: List[str]
     task_id: Optional[int]
     user_id: int
     workspace_id: int
 
 
 class MeTimeEntryResponse(MeTimeEntryResponseBase):
-    pass
+    at: datetime
+    duration: int
+    duronly: bool
+    id: int
+    permissions: Optional[List]
+    server_deleted_at: Optional[datetime]
+    start: datetime
+    stop: Optional[datetime]
+    tags: List[str]
 
 
-class MeTimeEntryWithMetaResponse(MeTimeEntryResponseBase):
+class MeTimeEntryWithMetaResponse(MeTimeEntryResponse):
     user_avatar_url: str
     user_name: str
 
@@ -72,3 +71,20 @@ class MeTimeEntryQueryParams(BaseSchema):
             return value
 
         return value.isoformat()
+
+
+class WebTimerTimeEntryResponse(MeTimeEntryResponseBase):
+    deleted: Optional[datetime]
+    duration_in_seconds: int
+    ignore_start_and_stop: bool
+    planned_task_id: Optional[int]
+    updated_at: datetime
+    utc_start: datetime
+    utc_stop: datetime
+
+
+class MeWebTimerResponse(BaseSchema):
+    clients: Optional[List]
+    projects: Optional[List]
+    tags: List
+    time_entries: List[WebTimerTimeEntryResponse]
