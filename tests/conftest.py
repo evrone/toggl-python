@@ -6,6 +6,7 @@ from respx import mock as respx_mock
 from toggl_python.api import ROOT_URL
 from toggl_python.auth import TokenAuth
 from toggl_python.entities.user import CurrentUser
+from toggl_python.entities.workspace import Workspace
 
 from tests.responses.me_get import FAKE_TOKEN
 
@@ -21,3 +22,10 @@ def authed_current_user() -> CurrentUser:
     auth = TokenAuth(token=FAKE_TOKEN)
 
     return CurrentUser(auth=auth)
+
+
+@pytest.fixture()
+def authed_workspace() -> Workspace:
+    auth = TokenAuth(token=FAKE_TOKEN)
+
+    return Workspace(auth=auth)
