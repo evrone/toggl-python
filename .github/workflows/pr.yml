@@ -1,0 +1,88 @@
+name: pr
+
+on:
+  - pull_request
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.8"
+  POETRY_VERSION: "1.8.3"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          # Cache Poetry dependencies
+          cache: 'pip'
+
+      - name: Install Poetry
+        # pipx and pip with venv do not work
+        run: pip install poetry==${{ env.POETRY_VERSION }}
+
+      - name: Restore dependencies from cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: dependencies-cache-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.POETRY_VERSION }}
+          restore-keys: |
+            dependencies-cache-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.setup-python.outputs.cache-hit != 'true'
+        # Disable venv to enable use cached dependencies
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-root --no-interaction
+
+      - name: Run Ruff
+        run: poetry run ruff check --output-format=github .
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: 'pip'
+
+      - name: Install Poetry
+        run: pip install poetry==${{ env.POETRY_VERSION }}
+
+      - name: Restore dependencies from cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: dependencies-cache-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.POETRY_VERSION }}
+          restore-keys: |
+            dependencies-cache-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.setup-python.outputs.cache-hit != 'true'
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-root --no-interaction
+
+      - name: Run Pytest on Python ${{ matrix.python }}
+        run: poetry run pytest
