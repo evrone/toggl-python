@@ -31,7 +31,8 @@ jobs:
           cache: 'pip'
 
       - name: Install Poetry
-        run: pipx install poetry==1.8.3
+        # pipx and pip with venv do not work
+        run: pip install poetry==${{ env.POETRY_VERSION }}
 
       - name: Restore dependencies from cache
         uses: actions/cache@v4
@@ -55,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.8", "3.9"]
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
@@ -67,7 +68,7 @@ jobs:
           cache: 'pip'
 
       - name: Install Poetry
-        run: pipx install poetry==1.8.3
+        run: pip install poetry==${{ env.POETRY_VERSION }}
 
       - name: Restore dependencies from cache
         uses: actions/cache@v4
@@ -79,7 +80,6 @@ jobs:
 
       - name: Install dependencies
         if: steps.setup-python.outputs.cache-hit != 'true'
-        # Disable venv to enable use cached dependencies
         run: |
           poetry config virtualenvs.create false
           poetry install --no-root --no-interaction
