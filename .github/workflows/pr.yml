@@ -31,14 +31,7 @@ jobs:
           cache: 'pip'
 
       - name: Install Poetry
-        env:
-          POETRY_HOME: "/opt/poetry"
-        # Recommended installation method if pip is used
-        run: |
-          python -m venv ${{ env.POETRY_HOME }}
-          ${{ env.POETRY_HOME }}/bin/pip install pip --upgrade
-          ${{ env.POETRY_HOME }}/bin/pip install poetry==${{ env.POETRY_VERSION }}
-          ${{ env.POETRY_HOME }}/bin/poetry --version
+        run: pipx install poetry==1.8.3
 
       - name: Restore dependencies from cache
         uses: actions/cache@v4
@@ -74,14 +67,7 @@ jobs:
           cache: 'pip'
 
       - name: Install Poetry
-        env:
-          POETRY_HOME: "/opt/poetry"
-        # Recommended installation method if pip is used
-        run: |
-          python -m venv ${{ env.POETRY_HOME }}
-          ${{ env.POETRY_HOME }}/bin/pip install pip --upgrade
-          ${{ env.POETRY_HOME }}/bin/pip install poetry==${{ env.POETRY_VERSION }}
-          ${{ env.POETRY_HOME }}/bin/poetry --version
+        run: pipx install poetry==1.8.3
 
       - name: Restore dependencies from cache
         uses: actions/cache@v4
