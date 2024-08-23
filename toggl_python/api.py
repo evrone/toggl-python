@@ -15,9 +15,9 @@ ROOT_URL: str = "https://api.track.toggl.com/api/v9"
 
 
 class ApiWrapper:
-    def __init__(self, auth: BasicAuth | TokenAuth) -> None:
+    def __init__(self, auth: BasicAuth | TokenAuth, base_url: str = ROOT_URL) -> None:
         self.client = Client(
-            base_url=ROOT_URL,
+            base_url=base_url,
             auth=auth,
             headers=COMMON_HEADERS,
             http2=True,
