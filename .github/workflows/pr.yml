@@ -40,7 +40,7 @@ jobs:
           path: ~/.cache/pypoetry
           key: dependencies-cache-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.POETRY_VERSION }}
           restore-keys: |
-            dependencies-cache-${{ runner.os }}-
+            dependencies-cache-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
 
       - name: Install dependencies
         if: steps.setup-python.outputs.cache-hit != 'true'
@@ -76,7 +76,7 @@ jobs:
           path: ~/.cache/pypoetry
           key: dependencies-cache-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.POETRY_VERSION }}
           restore-keys: |
-            dependencies-cache-${{ runner.os }}-
+            dependencies-cache-${{ runner.os }}-${{ env.PYTHON_VERSION }}-
 
       - name: Install dependencies
         if: steps.setup-python.outputs.cache-hit != 'true'
