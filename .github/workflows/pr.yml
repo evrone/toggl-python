@@ -15,6 +15,7 @@ concurrency:
 env:
   PYTHON_VERSION: "3.8"
   POETRY_VERSION: "1.8.3"
+  RUFF_VERSION: "0.5.4"
 
 jobs:
   lint:
@@ -27,30 +28,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          # Cache Poetry dependencies
-          cache: 'pip'
-
-      - name: Install Poetry
-        # pipx and pip with venv do not work
-        run: pip install poetry==${{ env.POETRY_VERSION }}
-
-      - name: Restore dependencies from cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pypoetry
-          key: dependencies-cache-${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ env.POETRY_VERSION }}
-          restore-keys: |
-            dependencies-cache-${{ runner.os }}-
 
       - name: Install dependencies
-        if: steps.setup-python.outputs.cache-hit != 'true'
-        # Disable venv to enable use cached dependencies
         run: |
-          poetry config virtualenvs.create false
-          poetry install --no-root --no-interaction
+          pip install --upgrade pip
+          pip install ruff==${{ env.RUFF_VERSION }}
 
       - name: Run Ruff
-        run: poetry run ruff check --output-format=github .
+        run: ruff check --output-format=github .
 
   test:
     runs-on: ubuntu-latest
