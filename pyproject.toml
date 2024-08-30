@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "toggl_python"
-version = "0.2.9"
+version = "0.3.0a0"
 description = "Python wrapper for Toggl API."
 authors = ["Evrone <mail@evrone.com>"]
 maintainers = ["Nifadev Vadim <vnifadev@evrone.com>"]
@@ -9,16 +9,19 @@ homepage = "https://github.com/evrone/toggl_python"
 repository = "https://github.com/evrone/toggl_python"
 documentation = "https://toggl-python.readthedocs.io"
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
 ]
 
 

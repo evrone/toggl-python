@@ -7,6 +7,7 @@ from toggl_python.api import ROOT_URL
 from toggl_python.auth import TokenAuth
 from toggl_python.entities.report_time_entry import REPORT_ROOT_URL, ReportTimeEntry
 from toggl_python.entities.user import CurrentUser
+from toggl_python.entities.workspace import Workspace
 
 from tests.responses.me_get import FAKE_TOKEN
 
@@ -29,6 +30,13 @@ def authed_current_user() -> CurrentUser:
 
     return CurrentUser(auth=auth)
 
+  
+@pytest.fixture()
+def authed_workspace() -> Workspace:
+    auth = TokenAuth(token=FAKE_TOKEN)
+
+    return Workspace(auth=auth)
+  
 
 @pytest.fixture()
 def authed_report_time_entry() -> ReportTimeEntry:

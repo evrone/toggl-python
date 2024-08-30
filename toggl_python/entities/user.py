@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from toggl_python.api import ApiWrapper
 from toggl_python.schemas.current_user import (
@@ -16,9 +16,17 @@ from toggl_python.schemas.current_user import (
     UpdateMeRequest,
     UpdateMeResponse,
 )
+from toggl_python.schemas.time_entry import (
+    MeTimeEntryQueryParams,
+    MeTimeEntryResponse,
+    MeTimeEntryWithMetaResponse,
+    MeWebTimerResponse,
+)
 
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from pydantic import EmailStr
 
 
@@ -128,3 +136,67 @@ class CurrentUser(ApiWrapper):
 
         response_body = response.json()
         return MePreferencesResponse.model_validate(response_body)
+
+    def get_time_entry(
+        self, time_entry_id: int, meta: bool = False
+    ) -> Union[MeTimeEntryResponse, MeTimeEntryWithMetaResponse]:
+        """Intentionally use the same schema for requests with `include_sharing=true`.
+
+        Tested responses do not differ from requests with `include_sharing=false`
+        that is why there is no `include_sharing` method argument.
+        """
+        response = self.client.get(
+            url=f"{self.prefix}/time_entries/{time_entry_id}",
+            params={"meta": meta},
+        )
+        self.raise_for_status(response)
+
+        response_schema = MeTimeEntryWithMetaResponse if meta else MeTimeEntryResponse
+
+        response_body = response.json()
+        return response_schema.model_validate(response_body)
+
+    def get_current_time_entry(self) -> Optional[MeTimeEntryResponse]:
+        """Return empty response if there is no running TimeEntry."""
+        response = self.client.get(url=f"{self.prefix}/time_entries/current")
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return MeTimeEntryResponse.model_validate(response_body) if response_body else None
+
+    def get_time_entries(
+        self,
+        meta: bool = False,
+        since: Union[int, datetime, None] = None,
+        before: Union[str, datetime, None] = None,
+        start_date: Union[str, datetime, None] = None,
+        end_date: Union[str, datetime, None] = None,
+    ) -> List[Union[MeTimeEntryResponse, MeTimeEntryWithMetaResponse]]:
+        """Intentionally use the same schema for requests with `include_sharing=true`.
+
+        Tested responses do not differ from requests with `include_sharing=false`
+        that is why there is no `include_sharing` method argument.
+        """
+        payload_schema = MeTimeEntryQueryParams(
+            meta=meta,
+            since=since,
+            before=before,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        payload = payload_schema.model_dump(mode="json", exclude_none=True)
+
+        response = self.client.get(url=f"{self.prefix}/time_entries", params=payload)
+        self.raise_for_status(response)
+
+        response_schema = MeTimeEntryWithMetaResponse if meta else MeTimeEntryResponse
+
+        response_body = response.json()
+        return [response_schema.model_validate(time_entry) for time_entry in response_body]
+
+    def get_web_timer(self) -> MeWebTimerResponse:
+        response = self.client.get(url=f"{self.prefix}/web-timer")
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return MeWebTimerResponse.model_validate(response_body)
