@@ -44,7 +44,7 @@ def test_get_workspaces__without_query_params(
     assert result == expected_result
 
 
-@patch("toggl_python.schemas.workspace.datetime")
+@patch("toggl_python.schemas.base.datetime")
 @pytest.mark.parametrize(
     argnames="query_params, method_kwargs",
     argvalues=(
@@ -74,7 +74,7 @@ def test_get_workspaces__with_query_param_since(
     assert result == expected_result
 
 
-@patch("toggl_python.schemas.workspace.datetime")
+@patch("toggl_python.schemas.base.datetime")
 def test_get_workspaces__too_old_since_value(
     mocked_datetime: Mock, authed_workspace: Workspace
 ) -> None:

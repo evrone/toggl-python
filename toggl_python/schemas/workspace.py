@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import List, Optional
 
-from pydantic import AwareDatetime, field_serializer, field_validator
 from pydantic.fields import Field
 
-from toggl_python.schemas.base import BaseSchema
+from toggl_python.schemas.base import BaseSchema, SinceParamSchemaMixin
 
 
 class WorkspaceResponseBase(BaseSchema):
@@ -48,28 +47,5 @@ class WorkspaceResponseBase(BaseSchema):
 class WorkspaceResponse(WorkspaceResponseBase):
     pass
 
-class GetWorkspacesQueryParams(BaseSchema):
-    since: Optional[AwareDatetime] = None
-
-    @field_validator("since")
-    @classmethod
-    def check_if_since_is_too_old(cls, value: Optional[datetime]) -> Optional[datetime]:
-        if not value:
-            return value
-
-        now = datetime.now(tz=timezone.utc)
-        three_months = timedelta(days=90)
-        utc_value = value.astimezone(tz=timezone.utc)
-
-        if now - three_months > utc_value:
-            error_message = "Since cannot be older than 3 months"
-            raise ValueError(error_message)
-
-        return value
-
-    @field_serializer("since", when_used="json")
-    def serialize_since(self, value: Optional[datetime]) -> Optional[int]:
-        if not value:
-            return value
-
-        return int(value.timestamp())
+class GetWorkspacesQueryParams(SinceParamSchemaMixin, BaseSchema):
+    pass
