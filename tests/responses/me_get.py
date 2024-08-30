@@ -105,3 +105,28 @@ ME_PREFERENCES_RESPONSE: Dict[str, Union[int, str, List[Dict]]] = {
     "send_weekly_report": False,
     "timeofday_format": "H:mm",
 }
+
+ME_WEB_TIMER_RESPONSE: Dict[str, Union[None, List[Dict]]] = {
+    "clients": None,
+    "projects": [],
+    "tags": [],
+    "tasks": None,
+    "time_entries": [
+        {
+            "billable": False,
+            "deleted": None,
+            "description": "test timer",
+            "duration_in_seconds": 52,
+            "ignore_start_and_stop": True,
+            "planned_task_id": None,
+            "project_id": 202793182,
+            "tag_ids": [16501871],
+            "task_id": 3545645770,
+            "updated_at": "2024-07-30T08:14:38+00:00",
+            "user_id": 30809356,
+            "utc_start": "2024-07-30T08:13:46+00:00",
+            "utc_stop": "2024-07-30T08:14:38+00:00",
+            "workspace_id": 43644207,
+        },
+    ],
+}
