@@ -61,6 +61,8 @@ ENV/
 # mypy
 .mypy_cache/
 
+.ruff_cache
+
 # IDE settings
 .vscode/
 local_*.py
