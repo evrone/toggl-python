@@ -30,13 +30,13 @@ def authed_current_user() -> CurrentUser:
 
     return CurrentUser(auth=auth)
 
-  
+
 @pytest.fixture()
 def authed_workspace() -> Workspace:
     auth = TokenAuth(token=FAKE_TOKEN)
 
     return Workspace(auth=auth)
-  
+
 
 @pytest.fixture()
 def authed_report_time_entry() -> ReportTimeEntry:
