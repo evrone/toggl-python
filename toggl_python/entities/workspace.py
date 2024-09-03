@@ -4,6 +4,12 @@ from typing import TYPE_CHECKING, List, Optional, Union
 
 from toggl_python.api import ApiWrapper
 from toggl_python.schemas.project import ProjectQueryParams, ProjectResponse
+from toggl_python.schemas.time_entry import (
+    BulkEditTimeEntriesOperation,
+    BulkEditTimeEntriesResponse,
+    MeTimeEntryResponse,
+    TimeEntryRequest,
+)
 from toggl_python.schemas.workspace import GetWorkspacesQueryParams, WorkspaceResponse
 
 
@@ -85,3 +91,96 @@ class Workspace(ApiWrapper):
         response_body = response.json()
 
         return [ProjectResponse.model_validate(project_data) for project_data in response_body]
+
+    def update_time_entry(  # noqa: PLR0913 - Too many arguments in function definition (13 > 12)
+        self,
+        workspace_id: int,
+        time_entry_id: int,
+        billable: Optional[bool] = None,
+        description: Optional[str] = None,
+        duration: Optional[int] = None,
+        project_id: Optional[int] = None,
+        shared_with_user_ids: Optional[List[int]] = None,
+        start: Optional[datetime] = None,
+        stop: Optional[datetime] = None,
+        tag_ids: Optional[List[int]] = None,
+        tags: Optional[List[str]] = None,
+        task_id: Optional[int] = None,
+        user_id: Optional[int] = None,
+    ) -> MeTimeEntryResponse:
+        """Some params from docs are not listed because API don't use them to change object."""
+        request_body_schema = TimeEntryRequest(
+            billable=billable,
+            description=description,
+            duration=duration,
+            project_id=project_id,
+            shared_with_user_ids=shared_with_user_ids,
+            start=start,
+            stop=stop,
+            tag_ids=tag_ids,
+            tags=tags,
+            task_id=task_id,
+            user_id=user_id,
+        )
+        request_body = request_body_schema.model_dump(mode="json", exclude_none=True)
+
+        response = self.client.put(
+            url=f"{self.prefix}/{workspace_id}/time_entries/{time_entry_id}", json=request_body
+        )
+        self.raise_for_status(response)
+
+        response_body = response.json()
+
+        return MeTimeEntryResponse.model_validate(response_body)
+
+    def delete_time_entry(self, workspace_id: int, time_entry_id: int) -> bool:
+        response = self.client.delete(
+            url=f"{self.prefix}/{workspace_id}/time_entries/{time_entry_id}"
+        )
+        self.raise_for_status(response)
+
+        return response.is_success
+
+    def bulk_edit_time_entries(
+        self,
+        workspace_id: int,
+        time_entry_ids: List[int],
+        operations: List[BulkEditTimeEntriesOperation],
+    ) -> MeTimeEntryResponse:
+        if not time_entry_ids:
+            error_message = "Specify at least one TimeEntry ID"
+            raise ValueError(error_message)
+
+        max_time_entries_ids = 100
+        if len(time_entry_ids) > max_time_entries_ids:
+            error_message = (
+                f"Limit to max TimeEntry IDs exceeded. "
+                f"Max {max_time_entries_ids} ids per request are allowed"
+            )
+            raise ValueError(error_message)
+        if not operations:
+            error_message = "Specify at least one edit operation"
+            raise ValueError(error_message)
+
+        request_body = [
+            operation.model_dump(mode="json", exclude_none=True) for operation in operations
+        ]
+
+        response = self.client.patch(
+            url=f"{self.prefix}/{workspace_id}/time_entries/{time_entry_ids}", json=request_body
+        )
+        self.raise_for_status(response)
+
+        response_body = response.json()
+
+        return BulkEditTimeEntriesResponse.model_validate(response_body)
+
+    def stop_time_entry(self, workspace_id: int, time_entry_id: int) -> MeTimeEntryResponse:
+        response = self.client.patch(
+            url=f"{self.prefix}/{workspace_id}/time_entries/{time_entry_id}/stop"
+        )
+        self.raise_for_status(response)
+
+        response_body = response.json()
+
+        return MeTimeEntryResponse.model_validate(response_body)
