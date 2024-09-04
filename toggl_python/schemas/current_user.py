@@ -40,7 +40,7 @@ class DurationFormat(str, Enum):
 
 class TimeFormat(str, Enum):
     hour_12 = "h:mm A"
-    hour_24 = "h:mm"
+    hour_24 = "H:mm"
 
 
 class MeResponseBase(BaseSchema):
@@ -55,7 +55,6 @@ class MeResponseBase(BaseSchema):
     has_password: bool
     id: int
     image_url: Url
-    oauth_provides: Optional[List[str]] = None
     openid_email: Optional[EmailStr] = None
     openid_enabled: bool
     timezone: str
@@ -99,12 +98,11 @@ class UpdateMeResponse(MeResponseBase):
 
 
 class MeResponseWithRelatedData(MeResponse):
-    clients: Optional[List]
-    projects: Optional[List]
-    tags: Optional[List]
-    time_entries: Optional[List]
+    clients: Optional[List] = None
+    projects: Optional[List] = None
+    tags: Optional[List] = None
+    time_entries: Optional[List] = None
     workspaces: List  # Default workspace is created after signup,
-    # check if it is possible not to have workspace at all
 
 
 class UpdateMePasswordRequest(BaseSchema):
@@ -177,4 +175,4 @@ class AlphaFeatureResponse(BaseSchema):
 class UpdateMePreferencesRequest(BaseSchema):
     date_format: Optional[DateFormat] = None
     duration_format: Optional[DurationFormat] = None
-    time_format: Optional[TimeFormat] = None
+    timeofday_format: Optional[TimeFormat] = None

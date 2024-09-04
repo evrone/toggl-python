@@ -19,6 +19,7 @@ from toggl_python.schemas.current_user import (
     UpdateMeResponse,
 )
 
+from tests.conftest import fake
 from tests.responses.me_get import (
     ME_FEATURES_RESPONSE,
     ME_PREFERENCES_RESPONSE,
@@ -271,7 +272,7 @@ def test_change_password__invalid_current_password(
     argvalues=["1", "12345678", "12345Qw"],
     ids=("Too short", "No symbols and chars", "No symbols"),
 )
-def test_update_me__weak_new_password(authed_current_user: CurrentUser, value: str) -> None:
+def test_change_password__weak_new_password(authed_current_user: CurrentUser, value: str) -> None:
     error_message = "Password is too weak"
 
     with pytest.raises(ValidationError, match=error_message):
@@ -311,9 +312,9 @@ def test_preferences__ok(response_mock: MockRouter, authed_current_user: Current
 @pytest.mark.parametrize(
     argnames=("field_name", "field_value"),
     argvalues=[
-        ("date_format", DateFormat.dmy_slash.value),
-        ("duration_format", DurationFormat.classic.value),
-        ("time_format", TimeFormat.hour_24.value),
+        ("date_format", fake.random_element({item.value for item in DateFormat})),
+        ("duration_format", fake.random_element({item.value for item in DurationFormat})),
+        ("time_format", fake.random_element({item.value for item in TimeFormat})),
     ],
 )
 def test_update_preferences__ok(
@@ -323,17 +324,14 @@ def test_update_preferences__ok(
     field_value: str,
 ) -> None:
     payload = {field_name: field_value}
-    fake_response = ME_PREFERENCES_RESPONSE.copy()
-    fake_response.update(**payload)
-    mocked_route = response_mock.put("/me/preferences").mock(
-        return_value=httpx.Response(status_code=200, json=fake_response),
+    mocked_route = response_mock.post("/me/preferences").mock(
+        return_value=httpx.Response(status_code=200),
     )
-    expected_result = MePreferencesResponse.model_validate(fake_response)
 
     result = authed_current_user.update_preferences(**payload)
 
     assert mocked_route.called is True
-    assert result == expected_result
+    assert result is True
 
 
 def test_update_preferences__invalid_duration_format(authed_current_user: CurrentUser) -> None:
@@ -361,7 +359,6 @@ def test_update_preferences__invalid_date_format(authed_current_user: CurrentUse
     last_value = DateFormat.dmy_dot.value
     allowed_values = all_values.replace(f", '{last_value}'", f" or '{last_value}'")
     error_message = f"Input should be {allowed_values}"
-
 
     with pytest.raises(ValidationError, match=error_message):
         _ = authed_current_user.update_preferences(date_format="DDMMYY")
