@@ -175,4 +175,4 @@ class AlphaFeatureResponse(BaseSchema):
 class UpdateMePreferencesRequest(BaseSchema):
     date_format: Optional[DateFormat] = None
     duration_format: Optional[DurationFormat] = None
-    time_format: Optional[TimeFormat] = None
+    timeofday_format: Optional[TimeFormat] = None
