@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-import logging
-
-# How to run these tests - only in specific order
-# Because there are update and create requests and they affect read requests
 import os
 from typing import Union
 
@@ -26,9 +22,6 @@ from tests.conftest import fake
 
 # Necessary to mark all tests in module as integration
 from tests.integration import pytestmark  # noqa: F401 - imported but unused
-
-
-logger = logging.getLogger(__name__)
 
 
 def test_logged(i_authed_user: CurrentUser) -> None:
