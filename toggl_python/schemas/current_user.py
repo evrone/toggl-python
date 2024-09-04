@@ -40,7 +40,7 @@ class DurationFormat(str, Enum):
 
 class TimeFormat(str, Enum):
     hour_12 = "h:mm A"
-    hour_24 = "h:mm"
+    hour_24 = "H:mm"
 
 
 class MeResponseBase(BaseSchema):
