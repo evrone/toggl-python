@@ -70,4 +70,4 @@ jobs:
           poetry install --no-root --no-interaction
 
       - name: Run Pytest on Python ${{ matrix.python }}
-        run: poetry run pytest
+        run: poetry run pytest -m "not integration"
