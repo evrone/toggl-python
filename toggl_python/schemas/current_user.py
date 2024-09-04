@@ -55,7 +55,6 @@ class MeResponseBase(BaseSchema):
     has_password: bool
     id: int
     image_url: Url
-    oauth_provides: Optional[List[str]] = None
     openid_email: Optional[EmailStr] = None
     openid_enabled: bool
     timezone: str
