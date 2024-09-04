@@ -119,7 +119,7 @@ class CurrentUser(ApiWrapper):
         date_format: Optional[DateFormat] = None,
         duration_format: Optional[DurationFormat] = None,
         time_format: Optional[TimeFormat] = None,
-    ) -> MePreferencesResponse:
+    ) -> bool:
         """Update different formats using pre-defined Enums.
 
         API documentation is not up to date, available fields to update are found manually.
@@ -127,15 +127,14 @@ class CurrentUser(ApiWrapper):
         payload_schema = UpdateMePreferencesRequest(
             date_format=date_format,
             duration_format=duration_format,
-            time_format=time_format,
+            timeofday_format=time_format,
         )
-        payload = payload_schema.model_dump_json(exclude_none=True)
+        payload = payload_schema.model_dump_json(exclude_none=True, exclude_unset=True)
 
-        response = self.client.put(url=f"{self.prefix}/preferences", json=payload)
+        response = self.client.post(url=f"{self.prefix}/preferences", content=payload)
         self.raise_for_status(response)
 
-        response_body = response.json()
-        return MePreferencesResponse.model_validate(response_body)
+        return response.is_success
 
     def get_time_entry(
         self, time_entry_id: int, meta: bool = False

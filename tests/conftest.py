@@ -1,6 +1,7 @@
 from typing import Generator
 
 import pytest
+from faker import Faker
 from respx import MockRouter
 from respx import mock as respx_mock
 from toggl_python.api import ROOT_URL
@@ -10,6 +11,9 @@ from toggl_python.entities.user import CurrentUser
 from toggl_python.entities.workspace import Workspace
 
 from tests.responses.me_get import FAKE_TOKEN
+
+
+fake = Faker()
 
 
 @pytest.fixture()
