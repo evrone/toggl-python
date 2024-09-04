@@ -98,12 +98,11 @@ class UpdateMeResponse(MeResponseBase):
 
 
 class MeResponseWithRelatedData(MeResponse):
-    clients: Optional[List]
-    projects: Optional[List]
-    tags: Optional[List]
-    time_entries: Optional[List]
+    clients: Optional[List] = None
+    projects: Optional[List] = None
+    tags: Optional[List] = None
+    time_entries: Optional[List] = None
     workspaces: List  # Default workspace is created after signup,
-    # check if it is possible not to have workspace at all
 
 
 class UpdateMePasswordRequest(BaseSchema):

@@ -67,10 +67,6 @@ ME_RESPONSE_WITH_RELATED_DATA: NESTED_RESPONSE_TYPE = {
     "timezone": "Europe/London",
     "toggl_accounts_id": "uWGsHAeXZGhJvQ3XjdY63h",
     "updated_at": "2024-05-16T12:01:24.447981Z",
-    "clients": [],
-    "projects": [],
-    "time_entries": [],
-    "tags": [],
     "workspaces": [],
 }
 
