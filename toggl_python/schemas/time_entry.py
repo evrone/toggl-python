@@ -109,6 +109,19 @@ class TimeEntryRequest(BaseSchema):
         return value.isoformat()
 
 
+class TimeEntryCreateRequest(BaseSchema):
+    created_with: str
+    start: AwareDatetime
+    workspace_id: int
+
+    @field_serializer("start", when_used="json")
+    def serialize_datetimes(self, value: Optional[datetime]) -> Optional[str]:
+        if not value:
+            return value
+
+        return value.isoformat()
+
+
 class BulkEditTimeEntriesOperation(BaseSchema):
     operation: BulkEditTimeEntriesOperations
     field_name: BulkEditTimeEntriesFieldNames

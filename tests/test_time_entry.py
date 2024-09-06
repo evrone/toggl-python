@@ -19,6 +19,8 @@ from toggl_python.schemas.time_entry import (
     MeWebTimerResponse,
 )
 
+from tests.conftest import fake
+from tests.factories.time_entry import time_entry_request_factory, time_entry_response_factory
 from tests.responses.me_get import ME_WEB_TIMER_RESPONSE
 from tests.responses.time_entry_get import ME_TIME_ENTRY_RESPONSE, ME_TIME_ENTRY_WITH_META_RESPONSE
 from tests.responses.time_entry_put_and_patch import BULK_EDIT_TIME_ENTRIES_RESPONSE
@@ -28,6 +30,48 @@ if TYPE_CHECKING:
     from respx import MockRouter
     from toggl_python.entities.user import CurrentUser
     from toggl_python.entities.workspace import Workspace
+
+
+def test_create_time_entry__only_required_fields(
+    response_mock: MockRouter, authed_workspace: Workspace
+) -> None:
+    workspace_id = fake.random_int()
+    request_body = time_entry_request_factory(workspace_id)
+    fake_response = time_entry_response_factory(workspace_id, request_body["start"])
+    mocked_route = response_mock.post(
+        f"/workspaces/{workspace_id}/time_entries", json=request_body
+    ).mock(
+        return_value=Response(status_code=200, json=fake_response),
+    )
+    expected_result = MeTimeEntryResponse.model_validate(fake_response)
+
+    result = authed_workspace.create_time_entry(
+        workspace_id,
+        start_datetime=request_body["start"],
+        created_with=request_body["created_with"],
+    )
+
+    assert mocked_route.called is True
+    assert result == expected_result
+
+
+def test_create_time_entry__all_fields(
+    response_mock: MockRouter, authed_current_user: CurrentUser
+) -> None:
+    pass
+
+
+def test_create_time_entry__invalid_start_stop_and_duration(
+    response_mock: MockRouter, authed_current_user: CurrentUser
+) -> None:
+    pass
+
+
+# ? not sure if it is relevant
+def test_create_time_entry__update_existing(
+    response_mock: MockRouter, authed_current_user: CurrentUser
+) -> None:
+    pass
 
 
 def test_get_time_entry__without_query_params(

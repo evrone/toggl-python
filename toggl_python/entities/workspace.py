@@ -8,6 +8,7 @@ from toggl_python.schemas.time_entry import (
     BulkEditTimeEntriesOperation,
     BulkEditTimeEntriesResponse,
     MeTimeEntryResponse,
+    TimeEntryCreateRequest,
     TimeEntryRequest,
 )
 from toggl_python.schemas.workspace import GetWorkspacesQueryParams, WorkspaceResponse
@@ -91,6 +92,28 @@ class Workspace(ApiWrapper):
         response_body = response.json()
 
         return [ProjectResponse.model_validate(project_data) for project_data in response_body]
+
+    def create_time_entry(  # - Too many arguments in function definition (13 > 12)
+        self,
+        workspace_id: int,
+        start_datetime: Union[datetime, str],
+        created_with: str,
+    ) -> MeTimeEntryResponse:
+        request_body_schema = TimeEntryCreateRequest(
+            created_with=created_with,
+            start=start_datetime,
+            workspace_id=workspace_id,
+        )
+        request_body = request_body_schema.model_dump(mode="json", exclude_none=True)
+
+        response = self.client.post(
+            url=f"{self.prefix}/{workspace_id}/time_entries", json=request_body
+        )
+        self.raise_for_status(response)
+
+        response_body = response.json()
+
+        return MeTimeEntryResponse.model_validate(response_body)
 
     def update_time_entry(  # noqa: PLR0913 - Too many arguments in function definition (13 > 12)
         self,
