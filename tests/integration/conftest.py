@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Generator
 import pytest
 from toggl_python.auth import TokenAuth
 from toggl_python.entities.user import CurrentUser
+from toggl_python.entities.workspace import Workspace
 
 
 if TYPE_CHECKING:
@@ -19,6 +20,14 @@ def i_authed_user() -> CurrentUser:
     auth = TokenAuth(token=token)
 
     return CurrentUser(auth=auth)
+
+
+@pytest.fixture(scope="session")
+def i_authed_workspace() -> Workspace:
+    token = os.environ["TOGGL_TOKEN"]
+    auth = TokenAuth(token=token)
+
+    return Workspace(auth=auth)
 
 
 @pytest.fixture()

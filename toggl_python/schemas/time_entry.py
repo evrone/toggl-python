@@ -1,10 +1,16 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
-from pydantic import AwareDatetime, field_serializer, model_serializer
+from pydantic import (
+    AwareDatetime,
+    field_serializer,
+    model_serializer,
+    model_validator,
+)
+from typing_extensions import Self
 
 from toggl_python.schemas.base import BaseSchema, SinceParamSchemaMixin
 
@@ -34,7 +40,7 @@ class MeTimeEntryResponseBase(BaseSchema):
     billable: bool
     description: Optional[str]
     project_id: Optional[int]
-    tag_ids: List[int]
+    tag_ids: Optional[List[int]]
     task_id: Optional[int]
     user_id: int
     workspace_id: int
@@ -49,7 +55,7 @@ class MeTimeEntryResponse(MeTimeEntryResponseBase):
     server_deleted_at: Optional[datetime]
     start: datetime
     stop: Optional[datetime]
-    tags: List[str]
+    tags: Optional[List[str]]
 
 
 class MeTimeEntryWithMetaResponse(MeTimeEntryResponse):
@@ -109,13 +115,52 @@ class TimeEntryRequest(BaseSchema):
         return value.isoformat()
 
 
+class TimeEntryCreateRequest(BaseSchema):
+    created_with: str
+    start: AwareDatetime
+    workspace_id: int
+    billable: Optional[bool] = None
+    description: Optional[str] = None
+    duration: Optional[int] = None
+    stop: Optional[AwareDatetime] = None
+    project_id: Optional[int] = None
+    tag_ids: Optional[List[int]] = None
+    tags: Optional[List[str]] = None
+    task_id: Optional[int] = None
+    user_id: Optional[int] = None
+
+    @field_serializer("start", when_used="json")
+    def serialize_datetimes(self, value: Optional[datetime]) -> Optional[str]:
+        if not value:
+            return value
+
+        return value.isoformat()
+
+    @model_validator(mode="after")
+    def validate_stop_and_duration(self) -> Self:
+        if (
+            self.duration
+            and self.stop
+            and (self.start + timedelta(seconds=self.duration) != self.stop)
+        ):
+            error_message = (
+                "`start`, `stop` and `duration` must be consistent - "
+                "`start` + `duration` == `stop`"
+            )
+            raise ValueError(error_message)
+
+        return self
+
+
 class BulkEditTimeEntriesOperation(BaseSchema):
     operation: BulkEditTimeEntriesOperations
     field_name: BulkEditTimeEntriesFieldNames
     field_value: Union[bool, str, int, AwareDatetime, List[int], List[str]]
 
     @model_serializer(when_used="json")
-    def serialize_schema(self) -> Dict:
+    def serialize_schema(
+        self,
+    ) -> Dict[str, Union[bool, str, int, AwareDatetime, List[int], List[str]]]:
         return {
             "op": self.operation,
             "path": f"/{self.field_name}",
