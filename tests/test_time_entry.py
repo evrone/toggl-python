@@ -20,7 +20,11 @@ from toggl_python.schemas.time_entry import (
 )
 
 from tests.conftest import fake
-from tests.factories.time_entry import time_entry_request_factory, time_entry_response_factory
+from tests.factories.time_entry import (
+    time_entry_extended_request_factory,
+    time_entry_request_factory,
+    time_entry_response_factory,
+)
 from tests.responses.me_get import ME_WEB_TIMER_RESPONSE
 from tests.responses.time_entry_get import ME_TIME_ENTRY_RESPONSE, ME_TIME_ENTRY_WITH_META_RESPONSE
 from tests.responses.time_entry_put_and_patch import BULK_EDIT_TIME_ENTRIES_RESPONSE
@@ -56,23 +60,64 @@ def test_create_time_entry__only_required_fields(
 
 
 def test_create_time_entry__all_fields(
-    response_mock: MockRouter, authed_current_user: CurrentUser
+    response_mock: MockRouter, authed_workspace: Workspace
 ) -> None:
-    pass
+    workspace_id = fake.random_int()
+    request_body = time_entry_extended_request_factory(workspace_id)
+    fake_response = time_entry_response_factory(
+        workspace_id,
+        start=request_body["start"],
+        billable=request_body["billable"],
+        description=request_body["description"],
+        duration=request_body["duration"],
+        project_id=request_body["project_id"],
+        stop=request_body["stop"],
+        tag_ids=request_body["tag_ids"],
+        tags=request_body["tags"],
+        task_id=request_body["task_id"],
+        user_id=request_body["user_id"],
+    )
+    mocked_route = response_mock.post(
+        f"/workspaces/{workspace_id}/time_entries", json=request_body
+    ).mock(
+        return_value=Response(status_code=200, json=fake_response),
+    )
+    expected_result = MeTimeEntryResponse.model_validate(fake_response)
+
+    result = authed_workspace.create_time_entry(
+        workspace_id,
+        start_datetime=request_body["start"],
+        created_with=request_body["created_with"],
+        billable=request_body["billable"],
+        description=request_body["description"],
+        duration=request_body["duration"],
+        project_id=request_body["project_id"],
+        stop=request_body["stop"],
+        tag_ids=request_body["tag_ids"],
+        tags=request_body["tags"],
+        task_id=request_body["task_id"],
+        user_id=request_body["user_id"],
+    )
+
+    assert mocked_route.called is True
+    assert result == expected_result
 
 
-def test_create_time_entry__invalid_start_stop_and_duration(
-    response_mock: MockRouter, authed_current_user: CurrentUser
-) -> None:
-    pass
+def test_create_time_entry__invalid_start_stop_and_duration(authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    request_body = time_entry_extended_request_factory(workspace_id)
+    error_message = (
+        r"`start`, `stop` and `duration` must be consistent - `start` \+ `duration` == `stop`"
+    )
 
-
-# ? not sure if it is relevant
-def test_create_time_entry__update_existing(
-    response_mock: MockRouter, authed_current_user: CurrentUser
-) -> None:
-    pass
-
+    with pytest.raises(ValidationError, match=error_message):
+        _ = authed_workspace.create_time_entry(
+            workspace_id,
+            start_datetime=request_body["start"],
+            created_with=request_body["created_with"],
+            duration=request_body["duration"] + fake.random_int(),
+            stop=request_body["stop"],
+        )
 
 def test_get_time_entry__without_query_params(
     response_mock: MockRouter, authed_current_user: CurrentUser
