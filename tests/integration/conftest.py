@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Generator
 
 import pytest
 from toggl_python.auth import TokenAuth
+from toggl_python.entities.report_time_entry import ReportTimeEntry
 from toggl_python.entities.user import CurrentUser
 from toggl_python.entities.workspace import Workspace
 
@@ -28,6 +29,14 @@ def i_authed_workspace() -> Workspace:
     auth = TokenAuth(token=token)
 
     return Workspace(auth=auth)
+
+
+@pytest.fixture(scope="session")
+def i_authed_report_time_entry() -> ReportTimeEntry:
+    token = os.environ["TOGGL_TOKEN"]
+    auth = TokenAuth(token=token)
+
+    return ReportTimeEntry(auth=auth)
 
 
 @pytest.fixture()
