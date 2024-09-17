@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from random import randint
 from typing import TYPE_CHECKING, Dict, List, Union
 from unittest.mock import Mock, patch
@@ -208,6 +208,7 @@ def test_get_time_entries__with_meta_query_param(
 
 
 @patch("toggl_python.schemas.base.datetime")
+@patch("toggl_python.schemas.time_entry.datetime")
 @pytest.mark.parametrize(
     argnames="query_params, method_kwargs",
     argvalues=(
@@ -216,19 +217,20 @@ def test_get_time_entries__with_meta_query_param(
             {"since": int(datetime(2024, 5, 10, tzinfo=timezone.utc).timestamp())},
         ),
         ({"since": 1718755200}, {"since": 1718755200}),
-        ({"before": "2024-07-28T12:30:43+00:00"}, {"before": "2024-07-28T12:30:43+00:00"}),
+        ({"before": "2024-07-28"}, {"before": "2024-07-28"}),
         (
-            {"before": "2023-01-01T00:00:00+00:00"},
+            {"before": "2023-01-01"},
             {"before": datetime(2023, 1, 1, tzinfo=timezone.utc)},
         ),
         (
-            {"start_date": "2023-09-12T00:00:00-03:00", "end_date": "2023-10-12T00:00:00-01:00"},
-            {"start_date": "2023-09-12T00:00:00-03:00", "end_date": "2023-10-12T00:00:00-01:00"},
+            {"start_date": "2024-03-27", "end_date": "2024-04-12"},
+            {"start_date": "2024-03-27T00:00:00-03:00", "end_date": "2024-04-12T00:00:00-01:00"},
         ),
     ),
 )
 def test_get_time_entries__with_datetime_query_params(
     mocked_datetime: Mock,
+    mocked_time_entry_datetime: Mock,
     query_params: Dict[str, Union[int, str]],
     method_kwargs: Dict[str, Union[datetime, str]],
     response_mock: MockRouter,
@@ -237,6 +239,7 @@ def test_get_time_entries__with_datetime_query_params(
     query_params["meta"] = False
     # Required to pass `since` query param validation
     mocked_datetime.now.return_value = datetime(2024, 6, 20, tzinfo=timezone.utc)
+    mocked_time_entry_datetime.now.return_value = datetime(2024, 6, 20, tzinfo=timezone.utc)
     mocked_route = response_mock.get("/me/time_entries", params=query_params).mock(
         return_value=Response(status_code=200, json=[ME_TIME_ENTRY_RESPONSE]),
     )
@@ -248,35 +251,37 @@ def test_get_time_entries__with_datetime_query_params(
     assert result == expected_result
 
 
+@patch("toggl_python.schemas.time_entry.datetime")
 @pytest.mark.parametrize(
     argnames="query_params",
     argvalues=(
-        {"start_date": "2010-01-01T00:00:00+08:00"},
-        {"end_date": "2010-02-01T00:00:00+03:00"},
-        {"since": 17223107204, "before": "2024-07-28T00:00:00+10:00"},
+        {"end_date": "2015-08-14"},
+        {"since": 17223107204, "before": "2015-07-28"},
         {
             "since": 17223107204,
-            "start_date": "2020-11-11T09:30:00-04:00",
-            "end_date": "2021-01-11T09:30:00-04:00",
+            "start_date": "2015-09-20",
+            "end_date": "2015-09-21",
         },
         {
-            "before": "2020-12-15T09:30:00-04:00",
-            "start_date": "2020-11-11T09:30:00-04:00",
-            "end_date": "2021-01-11T09:30:00-04:00",
+            "before": "2015-07-11",
+            "start_date": "2015-07-12",
+            "end_date": "2015-07-16",
         },
         {
             "since": 17223107204,
-            "before": "2020-12-15T09:30:00-04:00",
-            "start_date": "2020-11-11T09:30:00-04:00",
-            "end_date": "2021-01-11T09:30:00-04:00",
+            "before": "2015-07-11",
+            "start_date": "2015-07-12",
+            "end_date": "2015-07-16",
         },
     ),
 )
 def test_get_time_entries__invalid_query_params(
+    mocked_datetime: Mock,
     query_params: Dict[str, Union[int, str]],
     response_mock: MockRouter,
     authed_current_user: CurrentUser,
 ) -> None:
+    mocked_datetime.now.return_value = datetime(2015, 9, 22, tzinfo=timezone.utc)
     error_message = "can not be present simultaneously"
     _ = response_mock.get("/me/time_entries", params=query_params).mock(
         return_value=Response(status_code=400, json=error_message),
@@ -284,6 +289,36 @@ def test_get_time_entries__invalid_query_params(
 
     with pytest.raises(BadRequest, match=error_message):
         _ = authed_current_user.get_time_entries(**query_params)
+
+
+@patch("toggl_python.schemas.time_entry.datetime")
+@patch("toggl_python.schemas.base.datetime")
+@pytest.mark.parametrize(
+    argnames="arg_name",
+    argvalues=("start_date", "end_date"),
+)
+@pytest.mark.parametrize(
+    argnames="value",
+    argvalues=(
+        "2020-01-01T00:00:00+08:00",
+        "2020-01-01",
+        fake.date(end_datetime=date(2020, 1, 1)),
+        fake.date_time(end_datetime=date(2020, 1, 1)),
+    ),
+)
+def test_get_time_entries__too_old_dates(
+    mocked_time_entry_datetime: Mock,
+    mocked_datetime: Mock,
+    arg_name: str,
+    value: Union[str, datetime],
+    authed_current_user: CurrentUser,
+) -> None:
+    mocked_time_entry_datetime.now.return_value = datetime(2020, 4, 1, tzinfo=timezone.utc)
+    mocked_datetime.now.return_value = datetime(2020, 4, 1, tzinfo=timezone.utc)
+    error_message = "Start and end dates must not be earlier than 2020-01-02"
+
+    with pytest.raises(ValueError, match=error_message):
+        _ = authed_current_user.get_time_entries(**{arg_name: value})
 
 
 @patch("toggl_python.schemas.base.datetime")
