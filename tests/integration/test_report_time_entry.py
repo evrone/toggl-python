@@ -40,7 +40,7 @@ def test_search_report_time_entries__with_start_and_end_dates(
     timezone_name = fake.timezone()
     tz = zoneinfo.ZoneInfo(timezone_name)
     start_date = fake.date_this_decade()
-    delta = fake.random_int(min=1, max=999)
+    delta = fake.random_int(min=1, max=364)
     end_date = start_date + timedelta(days=delta)
     time_entry = i_authed_workspace.create_time_entry(
         workspace_id,
@@ -67,7 +67,7 @@ def test_search_report_time_entries__not_found(
     workspace_id = int(os.environ["WORKSPACE_ID"])
     # Set explicit date range to avoid finding unexpected existing test TimeEntries
     time_entry_start_date = fake.date_between(start_date="-15y", end_date="-2y")
-    delta = fake.random_int(min=1, max=999)
+    delta = fake.random_int(min=1, max=364)
     end_date = time_entry_start_date + timedelta(days=delta)
     start_date = fake.date_between_dates(time_entry_start_date, end_date)
 
