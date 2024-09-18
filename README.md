@@ -1,6 +1,6 @@
 # toggl-python
 
-![https://pypi.python.org/pypi/toggl_python](https://img.shields.io/pypi/v/toggl_python.svg) [![Supported python versions](https://img.shields.io/pypi/pyversions/toggl_python.svg?style=flat-square)](https://pypi.python.org/pypi/toggl_python) [![MIT License](https://img.shields.io/pypi/l/aiogram.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+![https://pypi.python.org/pypi/toggl_python](https://img.shields.io/pypi/v/toggl_python.svg) ![Downloads](https://img.shields.io/pypi/dm/toggl-python) [![Supported python versions](https://img.shields.io/pypi/pyversions/toggl_python.svg?style=flat-square)](https://pypi.python.org/pypi/toggl_python) [![MIT License](https://img.shields.io/pypi/l/aiogram.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 Typed `Toggl API` Python wrapper with pre-validation to avoid extra network usage.
 
