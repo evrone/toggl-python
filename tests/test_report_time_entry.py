@@ -73,14 +73,15 @@ def test_search_report_time_entries__with_all_params(
     response_report_mock: MockRouter,
     authed_report_time_entry: ReportTimeEntry,
 ) -> None:
-    fake_workspace_id = 123
+    fake_workspace_id = fake.random_int(min=1)
+    page_size = fake.random_int(min=1, max=100)
     request_body = {
-        "start_date": "2021-12-20",
-        "end_date": "2021-12-30",
-        "user_ids": [30809356],
-        "project_ids": [202793182],
-        "page_size": 10,
-        "first_row_number": 11,
+        "start_date": fake.date(),
+        "end_date": fake.date(),
+        "user_ids": [fake.random_int()],
+        "project_ids": [fake.random_int()],
+        "page_size": page_size,
+        "first_row_number": page_size + 1,
     }
     uri = f"/{fake_workspace_id}/search/time_entries"
     mocked_route = response_report_mock.post(uri, json=request_body).mock(

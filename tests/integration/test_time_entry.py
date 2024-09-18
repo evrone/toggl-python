@@ -122,7 +122,7 @@ def test_list_time_entries__with_start_and_end_date__str(
 
 
 def test_list_time_entries__no_results(i_authed_user: CurrentUser) -> None:
-    start_date = fake.date_time_between(start_date="-6m", end_date="-1m")
+    start_date = fake.date_time_between(start_date="-6m", end_date="-3m")
     delta = fake.random_int(min=0, max=999)
     end_date = start_date + timedelta(days=delta)
 
