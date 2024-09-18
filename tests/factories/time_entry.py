@@ -96,7 +96,7 @@ def time_entry_response_factory(
         "duronly": fake.boolean(),
         "id": fake.random_number(digits=11, fix_len=True),
         "permissions": None,
-        "project_id": project_id or fake.random_int() if fake.boolean() else None,
+        "project_id": project_id or fake.random_int(),
         "server_deleted_at": (
             fake.date_time_this_month(tzinfo=tz).isoformat(timespec="seconds")
             if fake.boolean()
@@ -106,7 +106,7 @@ def time_entry_response_factory(
         "stop": stop or _datetime_repr_factory(tz),
         "tag_ids": tag_ids or [],
         "tags": tags or [],
-        "task_id": task_id or fake.random_int() if fake.boolean() else None,
+        "task_id": task_id or fake.random_int(),
         "user_id": user_id or fake.random_int(),
         "workspace_id": workspace_id,
     }

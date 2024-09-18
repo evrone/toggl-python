@@ -147,7 +147,7 @@ class TimeEntryCreateRequest(BaseSchema):
     task_id: Optional[int] = None
     user_id: Optional[int] = None
 
-    @field_serializer("start", when_used="json")
+    @field_serializer("start", "stop", when_used="json")
     def serialize_datetimes(self, value: Optional[datetime]) -> Optional[str]:
         if not value:
             return value
