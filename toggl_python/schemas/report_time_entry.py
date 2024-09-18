@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date
 from typing import Dict, List, Optional
 
 from pydantic import AwareDatetime, field_serializer, model_validator
@@ -33,8 +33,8 @@ class ReportTimeEntryItem(BaseSchema):
 
 
 class SearchReportTimeEntriesRequest(BaseSchema):
-    start_date: Optional[AwareDatetime] = None
-    end_date: Optional[AwareDatetime] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
     project_ids: Optional[List[int]] = None
     user_ids: Optional[List[int]] = None
     page_size: Optional[int] = None
@@ -50,7 +50,7 @@ class SearchReportTimeEntriesRequest(BaseSchema):
         raise ValueError(error_message)
 
     @field_serializer("start_date", "end_date", when_used="json")
-    def serialize_datetimes(self, value: Optional[datetime]) -> Optional[str]:
+    def serialize_datetimes(self, value: Optional[date]) -> Optional[str]:
         if not value:
             return value
 

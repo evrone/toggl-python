@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
 from pydantic import (
     AwareDatetime,
     field_serializer,
+    field_validator,
     model_serializer,
     model_validator,
 )
@@ -65,16 +66,33 @@ class MeTimeEntryWithMetaResponse(MeTimeEntryResponse):
 
 class MeTimeEntryQueryParams(SinceParamSchemaMixin, BaseSchema):
     meta: bool
-    before: Optional[AwareDatetime] = None
-    start_date: Optional[AwareDatetime] = None
-    end_date: Optional[AwareDatetime] = None
+    before: Optional[datetime] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
 
     @field_serializer("before", "start_date", "end_date", when_used="json")
     def serialize_datetimes(self, value: Optional[datetime]) -> Optional[str]:
         if not value:
             return value
 
-        return value.isoformat()
+        return value.date().isoformat()
+
+    @field_validator("start_date", "end_date")
+    @classmethod
+    def check_if_dates_are_too_old(cls, value: Optional[datetime]) -> Optional[datetime]:
+        if not value:
+            return value
+
+        now = datetime.now(tz=timezone.utc)
+        three_months = timedelta(days=90)
+        utc_value = value.astimezone(tz=timezone.utc)
+
+        if now - three_months > utc_value:
+            first_allowed_date = (now - three_months).date().isoformat()
+            error_message = f"Start and end dates must not be earlier than {first_allowed_date}"
+            raise ValueError(error_message)
+
+        return value
 
 
 class WebTimerTimeEntryResponse(MeTimeEntryResponseBase):
@@ -129,7 +147,7 @@ class TimeEntryCreateRequest(BaseSchema):
     task_id: Optional[int] = None
     user_id: Optional[int] = None
 
-    @field_serializer("start", when_used="json")
+    @field_serializer("start", "stop", when_used="json")
     def serialize_datetimes(self, value: Optional[datetime]) -> Optional[str]:
         if not value:
             return value

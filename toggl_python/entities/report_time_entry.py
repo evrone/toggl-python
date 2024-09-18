@@ -10,7 +10,7 @@ from toggl_python.schemas.report_time_entry import (
 
 
 if TYPE_CHECKING:
-    from datetime import datetime
+    from datetime import date
 
     from toggl_python.auth import BasicAuth, TokenAuth
 
@@ -25,8 +25,8 @@ class ReportTimeEntry(ApiWrapper):
     def search(
         self,
         workspace_id: int,
-        start_date: Union[datetime, str, None] = None,
-        end_date: Union[datetime, str, None] = None,
+        start_date: Union[date, str, None] = None,
+        end_date: Union[date, str, None] = None,
         user_ids: Optional[List[int]] = None,
         project_ids: Optional[List[int]] = None,
         page_size: Optional[int] = None,
