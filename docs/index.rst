@@ -110,7 +110,7 @@ Pre-validation to avoid extra network usage:
    if __name__ == "__main__":
        auth = TokenAuth(token="TOGGL_TOKEN")
        workspace_id = "WORKSPACE_ID"
-       since = datetime(2024, 01, 20, tzinfo=timezone.utc)
+       since = datetime(2024, 1, 20, tzinfo=timezone.utc)
        # Assume that datetime.now is 2024-05-01
        Workspace(auth=auth).list(since=since)
 
