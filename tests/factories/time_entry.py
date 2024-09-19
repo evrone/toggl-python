@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 from tests.conftest import fake
+from tests.factories.base import datetime_repr_factory
 
 
 if TYPE_CHECKING:
@@ -15,14 +16,6 @@ try:
     import zoneinfo
 except ImportError:
     from backports import zoneinfo
-
-
-def _datetime_repr_factory(timezone: Union[ZoneInfo, TzInfo, None] = None) -> str:
-    if not timezone:
-        timezone_name = fake.timezone()
-        timezone = zoneinfo.ZoneInfo(timezone_name)
-
-    return fake.date_time_this_decade(tzinfo=timezone).isoformat(timespec="seconds")
 
 
 def _stop_datetime_repr_factory(
@@ -40,7 +33,7 @@ def _stop_datetime_repr_factory(
 def time_entry_request_factory(workspace_id: Optional[int] = None) -> Dict[str, Union[str, int]]:
     return {
         "created_with": fake.color_name(),
-        "start": _datetime_repr_factory(),
+        "start": datetime_repr_factory(),
         "workspace_id": workspace_id or fake.random_int(),
     }
 
@@ -51,7 +44,7 @@ def time_entry_extended_request_factory(
     timezone_name = fake.timezone()
     timezone = zoneinfo.ZoneInfo(timezone_name)
     duration = fake.random_int(min=-1)
-    start = _datetime_repr_factory(timezone)
+    start = datetime_repr_factory(timezone)
 
     return {
         "created_with": fake.color_name(),
@@ -89,7 +82,7 @@ def time_entry_response_factory(
         tz = zoneinfo.ZoneInfo(timezone_name)
 
     return {
-        "at": _datetime_repr_factory(tz),
+        "at": datetime_repr_factory(tz),
         "billable": billable or fake.boolean(),
         "description": description or fake.text(max_nb_chars=100),
         "duration": duration or fake.random_int(),
@@ -102,8 +95,8 @@ def time_entry_response_factory(
             if fake.boolean()
             else None
         ),
-        "start": start or _datetime_repr_factory(tz),
-        "stop": stop or _datetime_repr_factory(tz),
+        "start": start or datetime_repr_factory(tz),
+        "stop": stop or datetime_repr_factory(tz),
         "tag_ids": tag_ids or [],
         "tags": tags or [],
         "task_id": task_id or fake.random_int(),
