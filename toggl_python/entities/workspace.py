@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from toggl_python.api import ApiWrapper
-from toggl_python.schemas.project import ProjectQueryParams, ProjectResponse
+from toggl_python.schemas.project import CreateProjectRequest, ProjectQueryParams, ProjectResponse
 from toggl_python.schemas.time_entry import (
     BulkEditTimeEntriesOperation,
     BulkEditTimeEntriesResponse,
@@ -41,6 +41,54 @@ class Workspace(ApiWrapper):
         return [
             WorkspaceResponse.model_validate(workspace_data) for workspace_data in response_body
         ]
+
+    def create_project(
+        self,
+        workspace_id: int,
+        active: Optional[bool] = None,
+        auto_estimates: Optional[bool] = None,
+        billable: Optional[bool] = None,
+        client_id: Optional[int] = None,
+        client_name: Optional[str] = None,
+        currency: Optional[str] = None,
+        end_date: Union[date, str, None] = None,
+        estimated_hours: Optional[int] = None,
+        is_private: Optional[bool] = None,
+        is_shared: Optional[bool] = None,
+        name: Optional[str] = None,
+        rate: Optional[int] = None,
+        start_date: Union[date, str, None] = None,
+        template: Optional[bool] = None,
+        template_id: Optional[int] = None,
+    ) -> ProjectResponse:
+        request_body_schema = CreateProjectRequest(
+            active=active,
+            auto_estimates=auto_estimates,
+            billable=billable,
+            client_id=client_id,
+            client_name=client_name,
+            currency=currency,
+            end_date=end_date,
+            estimated_hours=estimated_hours,
+            is_private=is_private,
+            is_shared=is_shared,
+            name=name,
+            rate=rate,
+            start_date=start_date,
+            template=template,
+            template_id=template_id,
+        )
+        request_body = request_body_schema.model_dump(
+            mode="json", exclude_none=True, exclude_unset=True
+        )
+
+        response = self.client.post(
+            url=f"{self.prefix}/{workspace_id}/projects", json=request_body
+        )
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return ProjectResponse.model_validate(response_body)
 
     def get_project(self, workspace_id: int, project_id: int) -> ProjectResponse:
         response = self.client.get(url=f"{self.prefix}/{workspace_id}/projects/{project_id}")

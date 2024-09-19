@@ -16,6 +16,11 @@ from toggl_python.schemas.current_user import (
     UpdateMeRequest,
     UpdateMeResponse,
 )
+from toggl_python.schemas.project import (
+    MePaginatedProjectsQueryParams,
+    MeProjectsQueryParams,
+    ProjectResponse,
+)
 from toggl_python.schemas.time_entry import (
     MeTimeEntryQueryParams,
     MeTimeEntryResponse,
@@ -199,3 +204,34 @@ class CurrentUser(ApiWrapper):
 
         response_body = response.json()
         return MeWebTimerResponse.model_validate(response_body)
+
+    def get_projects(
+        self,
+        include_archived: Optional[bool] = None,
+        since: Union[int, datetime, None] = None,
+    ) -> List[ProjectResponse]:
+        payload_schema = MeProjectsQueryParams(include_archived=include_archived, since=since)
+        payload = payload_schema.model_dump(mode="json", exclude_none=True)
+
+        response = self.client.get(url=f"{self.prefix}/projects", params=payload)
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return [ProjectResponse.model_validate(project) for project in response_body]
+
+    def get_paginated_projects(
+        self,
+        since: Union[int, datetime, None] = None,
+        start_project_id: Optional[int] = None,
+        per_page: Optional[int] = None,
+    ) -> List[ProjectResponse]:
+        query_params_schema = MePaginatedProjectsQueryParams(
+            since=since, start_project_id=start_project_id, per_page=per_page
+        )
+        query_params = query_params_schema.model_dump(mode="json", exclude_none=True)
+
+        response = self.client.get(url=f"{self.prefix}/projects/paginated", params=query_params)
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return [ProjectResponse.model_validate(project) for project in response_body]

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Optional
+
+from pydantic import field_serializer
 
 from toggl_python.schemas.base import BaseSchema, SinceParamSchemaMixin
 
@@ -18,6 +20,8 @@ class ProjectResponse(BaseSchema):
     color: str
     created_at: datetime
     currency: Optional[str]
+    # Present if Project has end_date
+    end_date: Optional[datetime]
     estimated_hours: Optional[int]
     estimated_seconds: Optional[int]
     fixed_fee: Optional[int]
@@ -52,3 +56,37 @@ class ProjectQueryParams(SinceParamSchemaMixin, BaseSchema):
     sort_order: Optional[str]
     only_templates: Optional[bool]
     only_me: Optional[bool]
+
+
+class MeProjectsQueryParams(SinceParamSchemaMixin, BaseSchema):
+    include_archived: Optional[bool]
+
+
+class MePaginatedProjectsQueryParams(SinceParamSchemaMixin, BaseSchema):
+    start_project_id: Optional[int]
+    per_page: Optional[int]
+
+
+class CreateProjectRequest(BaseSchema):
+    active: Optional[bool] = None
+    auto_estimates: Optional[bool] = None
+    billable: Optional[bool] = None
+    client_id: Optional[int] = None
+    client_name: Optional[str] = None
+    currency: Optional[str] = None
+    end_date: Optional[date] = None
+    estimated_hours: Optional[int] = None
+    is_private: Optional[bool] = None
+    is_shared: Optional[bool] = None
+    name: Optional[str] = None
+    rate: Optional[int] = None
+    start_date: Optional[date] = None
+    template: Optional[bool] = None
+    template_id: Optional[int] = None
+
+    @field_serializer("start_date", "end_date", when_used="json")
+    def serialize_datetimes(self, value: Optional[date]) -> Optional[str]:
+        if not value:
+            return value
+
+        return value.isoformat()

@@ -10,6 +10,7 @@ from tests.integration import pytestmark  # noqa: F401 - imported but unused
 
 
 if TYPE_CHECKING:
+    from toggl_python.entities.user import CurrentUser
     from toggl_python.entities.workspace import Workspace
 
 
@@ -34,3 +35,25 @@ def test_get_project_by_id(i_authed_workspace: Workspace) -> None:
     result = i_authed_workspace.get_project(workspace_id, project_id)
 
     assert result.model_fields_set == expected_result
+
+
+def test_me_get_projects__without_query_params(i_authed_user: CurrentUser) -> None:
+    # Later Create project and init and delete it at the end
+    # Now this actions are not implemented
+    expected_result = set(ProjectResponse.model_fields.keys())
+
+    result = i_authed_user.get_projects()
+
+    assert result[0].model_fields_set == expected_result
+
+
+
+
+def test_me_get_paginated_projects__without_query_params(i_authed_user: CurrentUser) -> None:
+    # Later Create project and init and delete it at the end
+    # Now this actions are not implemented
+    expected_result = set(ProjectResponse.model_fields.keys())
+
+    result = i_authed_user.get_paginated_projects()
+
+    assert result[0].model_fields_set == expected_result
