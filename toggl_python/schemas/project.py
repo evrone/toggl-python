@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import List, Optional
 
-from pydantic import field_serializer, model_validator
+from pydantic import field_serializer, field_validator, model_validator
 from typing_extensions import Self
 
 from toggl_python.schemas.base import BaseSchema, SinceParamSchemaMixin
@@ -81,6 +81,7 @@ class CreateProjectRequest(BaseSchema):
     billable: Optional[bool] = None
     client_id: Optional[int] = None
     client_name: Optional[str] = None
+    color: Optional[str] = None
     currency: Optional[str] = None
     end_date: Optional[date] = None
     estimated_hours: Optional[int] = None
@@ -98,3 +99,16 @@ class CreateProjectRequest(BaseSchema):
             return value
 
         return value.isoformat()
+
+    @field_validator("color")
+    @classmethod
+    def validate_hex_color(cls, value: Optional[str]) -> Optional[str]:
+        if not value:
+            return value
+
+        hex_color_length = 7
+        if value.startswith("#") and len(value) == hex_color_length:
+            return value
+
+        error_message = "Invalid hex color. It should starts with # with 6 symbols after it"
+        raise ValueError(error_message)

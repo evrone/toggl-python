@@ -15,10 +15,11 @@ except ImportError:
 def project_request_factory() -> Dict[str, Union[str, bool, int, None]]:
     return {
         "active": fake.boolean(),
-        "auto_estimates": fake.null_boolean(),
+        "auto_estimates": fake.boolean(),
         "billable": fake.boolean(),
         "client_id": fake.random_int(),
         "client_name": fake.word(),
+        "color": fake.color(),
         "currency": fake.currency_code(),
         "end_date": fake.past_date().isoformat(),
         "estimated_hours": fake.random_int(),

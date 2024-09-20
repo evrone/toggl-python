@@ -72,6 +72,16 @@ def test_create_project_empty_request_body(
     assert result == expected_result
 
 
+def test_me_create_project__invalid_color(authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    error_message = "Invalid hex color. It should starts with # with 6 symbols after it"
+    valid_color = fake.color()
+    color = valid_color[1:] if fake.boolean() else valid_color[:-1]
+
+    with pytest.raises(ValidationError, match=error_message):
+        _ = authed_workspace.create_project(workspace_id, color=color)
+
+
 def test_get_project_by_id(response_mock: MockRouter, authed_workspace: Workspace) -> None:
     workspace_id = 123
     project_id = 123
@@ -267,3 +277,52 @@ def test_me_get_paginated_projects__with_query_params(
 
     assert mocked_route.called is True
     assert result == expected_result
+
+
+def test_update_project(response_mock: MockRouter, authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    project_id = fake.random_int()
+    full_request_body = project_request_factory()
+    random_param = fake.random_element(full_request_body.keys())
+    request_body = {random_param: full_request_body[random_param]}
+    response = project_response_factory()
+    mocked_route = response_mock.put(
+        f"/workspaces/{workspace_id}/projects/{project_id}", json=request_body
+    ).mock(
+        return_value=HttpxResponse(status_code=200, json=response),
+    )
+    expected_result = ProjectResponse.model_validate(response)
+
+    result = authed_workspace.update_project(workspace_id, project_id, **request_body)
+
+    assert mocked_route.called is True
+    assert result == expected_result
+
+
+def test_update_project_all_params(response_mock: MockRouter, authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    project_id = fake.random_int()
+    request_body = project_request_factory()
+    response = project_response_factory(workspace_id, end_date=request_body["end_date"])
+    mocked_route = response_mock.put(
+        f"/workspaces/{workspace_id}/projects/{project_id}", json=request_body
+    ).mock(
+        return_value=HttpxResponse(status_code=200, json=response),
+    )
+    expected_result = ProjectResponse.model_validate(response)
+
+    result = authed_workspace.update_project(workspace_id, project_id, **request_body)
+
+    assert mocked_route.called is True
+    assert result == expected_result
+
+
+def test_me_update_project__invalid_color(authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    project_id = fake.random_int()
+    error_message = "Invalid hex color. It should starts with # with 6 symbols after it"
+    valid_color = fake.color()
+    color = valid_color[1:] if fake.boolean() else valid_color[:-1]
+
+    with pytest.raises(ValidationError, match=error_message):
+        _ = authed_workspace.update_project(workspace_id, project_id, color=color)

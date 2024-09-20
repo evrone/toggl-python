@@ -50,6 +50,7 @@ class Workspace(ApiWrapper):
         billable: Optional[bool] = None,
         client_id: Optional[int] = None,
         client_name: Optional[str] = None,
+        color: Optional[str] = None,
         currency: Optional[str] = None,
         end_date: Union[date, str, None] = None,
         estimated_hours: Optional[int] = None,
@@ -67,6 +68,7 @@ class Workspace(ApiWrapper):
             billable=billable,
             client_id=client_id,
             client_name=client_name,
+            color=color,
             currency=currency,
             end_date=end_date,
             estimated_hours=estimated_hours,
@@ -140,6 +142,58 @@ class Workspace(ApiWrapper):
         response_body = response.json()
 
         return [ProjectResponse.model_validate(project_data) for project_data in response_body]
+
+    def update_project(  # noqa: PLR0913 - Too many arguments in function definition
+        self,
+        workspace_id: int,
+        project_id: int,
+        active: Optional[bool] = None,
+        auto_estimates: Optional[bool] = None,
+        billable: Optional[bool] = None,
+        client_id: Optional[int] = None,
+        client_name: Optional[str] = None,
+        color: Optional[str] = None,
+        currency: Optional[str] = None,
+        end_date: Union[date, str, None] = None,
+        estimated_hours: Optional[int] = None,
+        is_private: Optional[bool] = None,
+        is_shared: Optional[bool] = None,
+        name: Optional[str] = None,
+        rate: Optional[int] = None,
+        start_date: Union[date, str, None] = None,
+        template: Optional[bool] = None,
+        template_id: Optional[int] = None,
+    ) -> ProjectResponse:
+        request_body_schema = CreateProjectRequest(
+            active=active,
+            auto_estimates=auto_estimates,
+            billable=billable,
+            client_id=client_id,
+            client_name=client_name,
+            color=color,
+            currency=currency,
+            end_date=end_date,
+            estimated_hours=estimated_hours,
+            is_private=is_private,
+            is_shared=is_shared,
+            name=name,
+            rate=rate,
+            start_date=start_date,
+            template=template,
+            template_id=template_id,
+        )
+        request_body = request_body_schema.model_dump(
+            mode="json", exclude_none=True, exclude_unset=True
+        )
+
+        response = self.client.put(
+            url=f"{self.prefix}/{workspace_id}/projects/{project_id}", json=request_body
+        )
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return ProjectResponse.model_validate(response_body)
+
 
     def create_time_entry(
         self,
