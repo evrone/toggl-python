@@ -20,13 +20,12 @@ if TYPE_CHECKING:
     from toggl_python.entities.workspace import Workspace
 
 
-
-# FIXME: request is not mocked, debug
-def test_create_project_all_params(response_mock: MockRouter, authed_workspace: Workspace) -> None:
+def test_create_project(response_mock: MockRouter, authed_workspace: Workspace) -> None:
     workspace_id = fake.random_int()
-    request_body = project_request_factory()
-    response = project_response_factory(workspace_id, end_date=request_body["end_date"])
-    # response = project_response_factory(**request_body)
+    full_request_body = project_request_factory()
+    random_param = fake.random_element(full_request_body.keys())
+    request_body = {random_param: full_request_body[random_param]}
+    response = project_response_factory()
     mocked_route = response_mock.post(
         f"/workspaces/{workspace_id}/projects", json=request_body
     ).mock(
@@ -38,6 +37,41 @@ def test_create_project_all_params(response_mock: MockRouter, authed_workspace: 
 
     assert mocked_route.called is True
     assert result == expected_result
+
+
+def test_create_project_all_params(response_mock: MockRouter, authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    request_body = project_request_factory()
+    response = project_response_factory(workspace_id, end_date=request_body["end_date"])
+    mocked_route = response_mock.post(
+        f"/workspaces/{workspace_id}/projects", json=request_body
+    ).mock(
+        return_value=HttpxResponse(status_code=200, json=response),
+    )
+    expected_result = ProjectResponse.model_validate(response)
+
+    result = authed_workspace.create_project(workspace_id, **request_body)
+
+    assert mocked_route.called is True
+    assert result == expected_result
+
+
+def test_create_project_empty_request_body(
+    response_mock: MockRouter, authed_workspace: Workspace
+) -> None:
+    workspace_id = fake.random_int()
+    response = project_response_factory(workspace_id)
+    mocked_route = response_mock.post(f"/workspaces/{workspace_id}/projects").mock(
+        return_value=HttpxResponse(status_code=200, json=response),
+    )
+    expected_result = ProjectResponse.model_validate(response)
+
+    result = authed_workspace.create_project(workspace_id)
+
+    assert mocked_route.called is True
+    assert result == expected_result
+
+
 def test_get_project_by_id(response_mock: MockRouter, authed_workspace: Workspace) -> None:
     workspace_id = 123
     project_id = 123

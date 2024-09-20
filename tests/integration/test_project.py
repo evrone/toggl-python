@@ -14,6 +14,17 @@ if TYPE_CHECKING:
     from toggl_python.entities.workspace import Workspace
 
 
+def test_create_project__without_query_params(i_authed_workspace: Workspace) -> None:
+    # delete it at the end
+    # Now this actions are not implemented
+    workspace_id = int(os.environ["WORKSPACE_ID"])
+    expected_result = set(ProjectResponse.model_fields.keys())
+
+    result = i_authed_workspace.create_project(workspace_id)
+
+    assert result.model_fields_set == expected_result
+
+
 def test_get_projects__without_query_params(i_authed_workspace: Workspace) -> None:
     # Later Create project and init and delete it at the end
     # Now this actions are not implemented

@@ -3,7 +3,8 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import List, Optional
 
-from pydantic import field_serializer
+from pydantic import field_serializer, model_validator
+from typing_extensions import Self
 
 from toggl_python.schemas.base import BaseSchema, SinceParamSchemaMixin
 
@@ -21,7 +22,7 @@ class ProjectResponse(BaseSchema):
     created_at: datetime
     currency: Optional[str]
     # Present if Project has end_date
-    end_date: Optional[datetime]
+    end_date: Optional[datetime] = None
     estimated_hours: Optional[int]
     estimated_seconds: Optional[int]
     fixed_fee: Optional[int]
@@ -40,6 +41,13 @@ class ProjectResponse(BaseSchema):
     template: Optional[bool]
     template_id: Optional[int]
     workspace_id: int
+
+    @model_validator(mode="after")
+    @classmethod
+    def remove_optional_end_date(cls, data: Self) -> None:
+        """Remove field if Project object does not have it."""
+        if data.end_date is None:
+            del data.end_date
 
 
 class ProjectQueryParams(SinceParamSchemaMixin, BaseSchema):

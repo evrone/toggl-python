@@ -15,7 +15,7 @@ from toggl_python.schemas.workspace import GetWorkspacesQueryParams, WorkspaceRe
 
 
 if TYPE_CHECKING:
-    from datetime import datetime
+    from datetime import date, datetime
 
 
 class Workspace(ApiWrapper):
@@ -42,7 +42,7 @@ class Workspace(ApiWrapper):
             WorkspaceResponse.model_validate(workspace_data) for workspace_data in response_body
         ]
 
-    def create_project(
+    def create_project(  # noqa: PLR0913 - Too many arguments in function definition
         self,
         workspace_id: int,
         active: Optional[bool] = None,
