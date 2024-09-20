@@ -194,6 +194,11 @@ class Workspace(ApiWrapper):
         response_body = response.json()
         return ProjectResponse.model_validate(response_body)
 
+    def delete_project(self, workspace_id: int, project_id: int) -> bool:
+        response = self.client.delete(url=f"{self.prefix}/{workspace_id}/projects/{project_id}")
+        self.raise_for_status(response)
+
+        return response.is_success
 
     def create_time_entry(
         self,

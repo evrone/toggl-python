@@ -317,7 +317,7 @@ def test_update_project_all_params(response_mock: MockRouter, authed_workspace: 
     assert result == expected_result
 
 
-def test_me_update_project__invalid_color(authed_workspace: Workspace) -> None:
+def test_update_project__invalid_color(authed_workspace: Workspace) -> None:
     workspace_id = fake.random_int()
     project_id = fake.random_int()
     error_message = "Invalid hex color. It should starts with # with 6 symbols after it"
@@ -326,3 +326,16 @@ def test_me_update_project__invalid_color(authed_workspace: Workspace) -> None:
 
     with pytest.raises(ValidationError, match=error_message):
         _ = authed_workspace.update_project(workspace_id, project_id, color=color)
+
+
+def test_delete_project(response_mock: MockRouter, authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    project_id = fake.random_int()
+    mocked_route = response_mock.delete(f"/workspaces/{workspace_id}/projects/{project_id}").mock(
+        return_value=HttpxResponse(status_code=200),
+    )
+
+    result = authed_workspace.delete_project(workspace_id, project_id)
+
+    assert mocked_route.called is True
+    assert result is True
