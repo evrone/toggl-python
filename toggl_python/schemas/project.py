@@ -8,11 +8,11 @@ from toggl_python.schemas.base import BaseSchema, SinceParamSchemaMixin
 
 class ProjectResponse(BaseSchema):
     active: bool
-    actual_hours: int
-    actual_seconds: int
+    actual_hours: Optional[int]
+    actual_seconds: Optional[int]
     at: datetime
     auto_estimates: Optional[bool]
-    billable: bool
+    billable: Optional[bool]
     can_track_time: bool
     client_id: Optional[int]
     color: str
@@ -32,7 +32,7 @@ class ProjectResponse(BaseSchema):
     recurring_parameters: Optional[List]
     server_deleted_at: Optional[datetime]
     start_date: datetime
-    status: str
+    status: Optional[str] = None
     template: Optional[bool]
     template_id: Optional[int]
     workspace_id: int
