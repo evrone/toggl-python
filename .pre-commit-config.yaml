@@ -13,13 +13,13 @@ repos:
       - id: trailing-whitespace
       - id: mixed-line-ending
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.4
+    rev: v0.6.7
     hooks:
       - id: ruff
         args: [ --fix ]
   # Spell Checker
   -   repo: https://github.com/crate-ci/typos
-      rev: v1.23.3
+      rev: v1.24.6
       hooks:
       -   id: typos
   # Git commit linter
@@ -29,7 +29,7 @@ repos:
       -   id: gitlint
   # Detect hardcoded secrets
   -   repo: https://github.com/zricethezav/gitleaks
-      rev: v8.18.4
+      rev: v8.19.2
       hooks:
         - id: gitleaks
   - repo: local
@@ -41,8 +41,3 @@ repos:
         stages: [pre-push]
         language: python
         types: [python]
-
-ci:
-    skip: [test, gitlint]
-    autofix_prs: false
-    autoupdate_schedule: monthly
