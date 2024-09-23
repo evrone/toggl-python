@@ -1,6 +1,8 @@
-name: Manually Upload Python Package to Pypi
+name: Upload Python Package to Test Pypi
 
-on: workflow_dispatch
+on:
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -42,8 +44,8 @@ jobs:
       id-token: write
 
     environment:
-      name: pypi
-      url: https://pypi.org/p/toggl_python
+      name: test_pypi
+      url: https://test.pypi.org/p/toggl_python
 
     steps:
       - name: Retrieve release distributions
@@ -54,3 +56,5 @@ jobs:
 
       - name: Publish release distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
