@@ -39,12 +39,12 @@ def i_authed_report_time_entry() -> ReportTimeEntry:
     return ReportTimeEntry(auth=auth)
 
 
-@pytest.fixture()
+@pytest.fixture
 def me_response(i_authed_user: CurrentUser) -> MeResponse:
     return i_authed_user.me()
 
 
-@pytest.fixture()
+@pytest.fixture
 def me_preferences_response(i_authed_user: CurrentUser) -> MePreferencesResponse:
     return i_authed_user.preferences()
 

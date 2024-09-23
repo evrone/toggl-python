@@ -16,33 +16,33 @@ from tests.responses.me_get import FAKE_TOKEN
 fake = Faker()
 
 
-@pytest.fixture()
+@pytest.fixture
 def response_mock() -> Generator[MockRouter, None, None]:
     with respx_mock(base_url=ROOT_URL) as mock_with_base_url:
         yield mock_with_base_url
 
 
-@pytest.fixture()
+@pytest.fixture
 def response_report_mock() -> Generator[MockRouter, None, None]:
     with respx_mock(base_url=REPORT_ROOT_URL) as mock_with_base_url:
         yield mock_with_base_url
 
 
-@pytest.fixture()
+@pytest.fixture
 def authed_current_user() -> CurrentUser:
     auth = TokenAuth(token=FAKE_TOKEN)
 
     return CurrentUser(auth=auth)
 
 
-@pytest.fixture()
+@pytest.fixture
 def authed_workspace() -> Workspace:
     auth = TokenAuth(token=FAKE_TOKEN)
 
     return Workspace(auth=auth)
 
 
-@pytest.fixture()
+@pytest.fixture
 def authed_report_time_entry() -> ReportTimeEntry:
     auth = TokenAuth(token=FAKE_TOKEN)
 
