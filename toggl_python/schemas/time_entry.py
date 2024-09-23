@@ -14,6 +14,7 @@ from pydantic import (
 from typing_extensions import Self
 
 from toggl_python.schemas.base import BaseSchema, SinceParamSchemaMixin
+from toggl_python.schemas.project import ProjectResponse  # noqa: TCH001
 
 
 class BulkEditTimeEntriesOperations(str, Enum):
@@ -107,7 +108,7 @@ class WebTimerTimeEntryResponse(MeTimeEntryResponseBase):
 
 class MeWebTimerResponse(BaseSchema):
     clients: Optional[List]
-    projects: Optional[List]
+    projects: Optional[List[ProjectResponse]]
     tags: List
     time_entries: List[WebTimerTimeEntryResponse]
 

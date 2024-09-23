@@ -22,6 +22,11 @@ from pydantic import (
 from pydantic.fields import Field
 from pydantic_core import Url
 
+# Move application import `toggl_python.schemas.project.ProjectResponse` into a type-checking block
+from toggl_python.schemas.project import ProjectResponse  # noqa: TCH001
+from toggl_python.schemas.time_entry import MeTimeEntryResponse  # noqa: TCH001
+from toggl_python.schemas.workspace import WorkspaceResponse  # noqa: TCH001
+
 
 class DateFormat(str, Enum):
     mdy_slash = "MM/DD/YYYY"
@@ -99,10 +104,10 @@ class UpdateMeResponse(MeResponseBase):
 
 class MeResponseWithRelatedData(MeResponse):
     clients: Optional[List] = None
-    projects: Optional[List] = None
+    projects: Optional[List[ProjectResponse]] = None
     tags: Optional[List] = None
-    time_entries: Optional[List] = None
-    workspaces: List  # Default workspace is created after signup,
+    time_entries: Optional[List[MeTimeEntryResponse]] = None
+    workspaces: List[WorkspaceResponse]  # Default workspace is created after signup,
 
 
 class UpdateMePasswordRequest(BaseSchema):
