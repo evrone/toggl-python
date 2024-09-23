@@ -1,67 +1,109 @@
 [tool.poetry]
 name = "toggl_python"
-version = "0.2.9"
-description = "Python wrapper for Toggl API."
-authors = ["Ivlev Denis <me@dierz.pro>"]
+version = "0.3.0"
+description = "Typed `Toggl API` Python wrapper with pre-validation to avoid extra network usage."
+authors = ["Evrone <mail@evrone.com>"]
+maintainers = ["Nifadev Vadim <vnifadev@evrone.com>"]
 readme = "README.md"
 homepage = "https://github.com/evrone/toggl_python"
 repository = "https://github.com/evrone/toggl_python"
 documentation = "https://toggl-python.readthedocs.io"
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
 ]
 
+
+[project]
+name = "toggl_python"
+requires-python = ">=3.8"
+
 [tool.poetry.dependencies]
-python = "^3.12"
-httpx = {extras=["http2"], version="^0.25.1"}
-pydantic = {extras = ["email"], version = "^2.5.1"}
+python = "^3.8.18"
+httpx = {extras = ["http2"], version = "^0.27.2"}
+# Necessary for listing available timezones
+# use zoneinfo.available_timezones()
+backports-zoneinfo = {version = "^0.2.1", python = "3.8"}
+pydantic = {extras = ["email"], version = "^2.9.2"}
 
-[tool.poetry.dev-dependencies]
-pytest = "^7.4.3"
-respx = "^0.20.2"
-black = "^23.11.0"
-ipython = "^8.17.2"
-mypy = "^1.7.0"
-coverage = "^7.3.2"
-flake8 = "^6.1.0"
-isort = "^5.8.0"
-pre-commit = "^3.5.0"
-
-[tool.black]
-line-length = 100
-target-version = ['py38']
-exclude = '''
-(
-  \.eggs
-  |\.git
-  |\.hg
-  |\.mypy_cache
-  |\.nox
-  |\.tox
-  |\.venv
-  |_build
-  |buck-out
-  |build
-  |dist
-)
-'''
-
-[tool.isort]
-line_length = 100
-sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-multi_line_output = 3
-known_django = "django"
-profile = "django"
-src_paths = "toggl_python"
-lines_after_imports = 2
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+nox = "^2024.4.15"
+respx = "^0.21.1"
+ruff = "^0.5.7"
+pre-commit = "3.5.0"
+faker = "^28.4.1"
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+src = ["toggl_python"]
+line-length = 99
+unsafe-fixes = true
+extend-exclude = [
+    "docs/*",
+    ".venv",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812", # Trailing comma missing
+    "D100", # Missing docstring in public module
+    "D101", # Missing docstring in public class
+    "D102", # Missing docstring in public method
+    "D103", # Missing docstring in public function
+    "D104", # Missing docstring in public package
+    "D105", # Missing docstring in magic method
+    "D106", # Missing docstring in public nested class
+    "D107", # Missing docstring in __init__
+    "UP006", # Use `list` instead of `List` for type annotation
+    "UP007", # Use `X | Y` for type annotations (not supported on current Python version - 3.8)
+    # Ignored because function args emulates query args which could be boolean
+    "FBT001", # Boolean-typed positional argument in function definition
+    "FBT002", # Boolean default positional argument in function definition
+    "N818", # Exception name should be named with Error suffix
+    "PT004", # Deprecated error, will be removed in future release
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "S101",
+    "S106", # Possible hardcoded password assigned to argument
+]
+# Move standard/third-party library import into a type-checking block
+# Necessary for valid Pydantic schemas
+"toggl_python/schemas/*" = ["TCH002", "TCH003"]
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+
+[tool.ruff.lint.pylint]
+max-args = 12
+max-public-methods = 10
+max-locals = 16
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: make API calls during testing (deselect with '-m \"not integration\"')",
+]

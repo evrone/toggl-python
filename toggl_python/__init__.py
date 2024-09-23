@@ -1,63 +1,35 @@
-__version__ = "0.2.7"
+__version__ = "0.3.0"
 
-from .auth import BasicAuth, TokenAuth  # noqa: F401
-from .entities import Dashboard  # noqa: F401
-from .entities import (
-    Activity,
-    BaseEntity,
-    Client,
-    Group,
-    MostActiveUser,
-    Project,
-    ProjectUser,
-    ReportTimeEntry,
-    Tag,
-    Task,
-    TimeEntry,
-    User,
-    Workspace,
-    WorkspaceUser,
+from .auth import BasicAuth, TokenAuth
+from .entities.report_time_entry import ReportTimeEntry
+from .entities.user import CurrentUser
+from .entities.workspace import Workspace
+from .exceptions import BadRequest, TogglException
+from .schemas.current_user import MeResponse
+from .schemas.project import ProjectQueryParams, ProjectResponse
+from .schemas.report_time_entry import (
+    SearchReportTimeEntriesRequest,
+    SearchReportTimeEntriesResponse,
 )
-from .repository import (
-    Clients,
-    Dashboards,
-    Groups,
-    ProjectUsers,
-    ReportTimeEntries,
-    Tags,
-    TimeEntries,
-    Users,
-    Workspaces,
-    WorkspaceUsers,
-)
+from .schemas.time_entry import MeTimeEntryResponse, TimeEntryCreateRequest, TimeEntryRequest
+from .schemas.workspace import WorkspaceResponse
 
 
-__all__ = [
-    "Activity",
+__all__ = (
     "BasicAuth",
-    "BaseEntity",
-    "Client",
-    "Clients",
-    "Dashboard",
-    "Dashboards",
-    "Group",
-    "Groups",
-    "MostActiveUser",
-    "Project",
-    "ProjectUser",
-    "ProjectUsers",
-    "ReportTimeEntry",
-    "ReportTimeEntries",
-    "Tag",
-    "Tags",
-    "Task",
-    "TimeEntries",
-    "TimeEntry",
     "TokenAuth",
-    "User",
-    "Users",
+    "CurrentUser",
     "Workspace",
-    "Workspaces",
-    "WorkspaceUser",
-    "WorkspaceUsers",
-]
+    "ReportTimeEntry",
+    "SearchReportTimeEntriesResponse",
+    "SearchReportTimeEntriesRequest",
+    "WorkspaceResponse",
+    "ProjectResponse",
+    "ProjectQueryParams",
+    "MeTimeEntryResponse",
+    "TimeEntryRequest",
+    "TimeEntryCreateRequest",
+    "MeResponse",
+    "BadRequest",
+    "TogglException",
+)

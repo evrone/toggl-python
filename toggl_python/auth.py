@@ -1,16 +1,15 @@
-import typing
+from typing import Final
 
-import httpx
-
-
-class BasicAuth(httpx.BasicAuth):
-    """Httpx basic auth class"""
+from httpx import BasicAuth as HttpxBasicAuth
 
 
-class TokenAuth(httpx.BasicAuth):
-    """Httpx basic auth class with token insertion on class init"""
+class BasicAuth(HttpxBasicAuth):
+    pass
 
-    SECRET: str = "api_token"
 
-    def __init__(self, token: typing.Union[str, bytes]):
-        super().__init__(token, self.SECRET)
+class TokenAuth(HttpxBasicAuth):
+    SECRET: Final[str] = "api_token"
+
+    def __init__(self, token: str) -> None:
+        """Render `Authorization` header with required by Toggl API format `<token>:api_token`."""
+        super().__init__(username=token, password=self.SECRET)
