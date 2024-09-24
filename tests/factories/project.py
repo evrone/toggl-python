@@ -13,22 +13,27 @@ except ImportError:
 
 
 def project_request_factory() -> Dict[str, Union[str, bool, int, None]]:
+    if fake.boolean():
+        client_id = fake.random_int()
+        client_name = None
+    else:
+        client_id = None
+        client_name = fake.word()
+
+    start_date = fake.past_date()
+
     return {
         "active": fake.boolean(),
         "auto_estimates": fake.boolean(),
-        "billable": fake.boolean(),
-        "client_id": fake.random_int(),
-        "client_name": fake.word(),
-        "color": fake.color(),
+        "client_id": client_id,
+        "client_name": client_name,
         "currency": fake.currency_code(),
-        "end_date": fake.past_date().isoformat(),
+        "end_date": fake.date_between(start_date=start_date).isoformat(),
         "estimated_hours": fake.random_int(),
         "is_private": fake.boolean(),
         "is_shared": fake.boolean(),
         "name": fake.word(),
-        "rate": fake.random_int(),
-        "start_date": fake.past_date().isoformat(),
-        "template_id": fake.random_int(),
+        "start_date": start_date.isoformat(),
     }
 
 
@@ -41,11 +46,11 @@ def project_response_factory(
 
     response = {
         "active": fake.boolean(),
-        "actual_hours": fake.random_int(),
-        "actual_seconds": fake.random_int(),
+        "actual_hours": fake.random_int() if fake.boolean() else None,
+        "actual_seconds": fake.random_int() if fake.boolean() else None,
         "at": datetime_repr_factory(timezone),
         "auto_estimates": fake.null_boolean(),
-        "billable": fake.boolean(),
+        "billable": fake.null_boolean(),
         "can_track_time": fake.boolean(),
         "cid": fake.random_int() if fake.boolean() else None,
         "client_id": fake.random_int() if fake.boolean() else None,
@@ -66,7 +71,7 @@ def project_response_factory(
         "recurring_parameters": None,
         "server_deleted_at": datetime_repr_factory(timezone) if fake.boolean() else None,
         "start_date": fake.past_date().isoformat(),
-        "status": fake.word(),
+        "status": fake.word() if fake.boolean() else None,
         "template": fake.null_boolean(),
         "template_id": fake.random_int(),
         "wid": workspace_id or fake.random_int(),

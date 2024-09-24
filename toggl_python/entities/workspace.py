@@ -47,35 +47,37 @@ class Workspace(ApiWrapper):
         workspace_id: int,
         active: Optional[bool] = None,
         auto_estimates: Optional[bool] = None,
-        billable: Optional[bool] = None,
         client_id: Optional[int] = None,
         client_name: Optional[str] = None,
-        color: Optional[str] = None,
         currency: Optional[str] = None,
         end_date: Union[date, str, None] = None,
         estimated_hours: Optional[int] = None,
         is_private: Optional[bool] = None,
         is_shared: Optional[bool] = None,
         name: Optional[str] = None,
-        rate: Optional[int] = None,
         start_date: Union[date, str, None] = None,
         template: Optional[bool] = None,
         template_id: Optional[int] = None,
     ) -> ProjectResponse:
+        """Allow to update Project instance fields which are available on free plan.
+
+        Request body parameters `billable`, `color`, `rate`, `fixed_fee` are available
+        only on paid plan. That is why they are not listed in method arguments.
+
+        Field `status` is affected by fields `active`, `start_date`, `end_date` and
+        cannot be changed explicitly.
+        """
         request_body_schema = CreateProjectRequest(
             active=active,
             auto_estimates=auto_estimates,
-            billable=billable,
             client_id=client_id,
             client_name=client_name,
-            color=color,
             currency=currency,
             end_date=end_date,
             estimated_hours=estimated_hours,
             is_private=is_private,
             is_shared=is_shared,
             name=name,
-            rate=rate,
             start_date=start_date,
             template=template,
             template_id=template_id,
@@ -149,35 +151,37 @@ class Workspace(ApiWrapper):
         project_id: int,
         active: Optional[bool] = None,
         auto_estimates: Optional[bool] = None,
-        billable: Optional[bool] = None,
         client_id: Optional[int] = None,
         client_name: Optional[str] = None,
-        color: Optional[str] = None,
         currency: Optional[str] = None,
         end_date: Union[date, str, None] = None,
         estimated_hours: Optional[int] = None,
         is_private: Optional[bool] = None,
         is_shared: Optional[bool] = None,
         name: Optional[str] = None,
-        rate: Optional[int] = None,
         start_date: Union[date, str, None] = None,
         template: Optional[bool] = None,
         template_id: Optional[int] = None,
     ) -> ProjectResponse:
+        """Allow to update Project instance fields which are available on free plan.
+
+        Request body parameters `billable`, `color`, `rate`, `fixed_fee` are available
+        only on paid plan. That is why they are not listed in method arguments.
+
+        Field `status` is affected by fields `active`, `start_date`, `end_date` and
+        cannot be changed explicitly.
+        """
         request_body_schema = CreateProjectRequest(
             active=active,
             auto_estimates=auto_estimates,
-            billable=billable,
             client_id=client_id,
             client_name=client_name,
-            color=color,
             currency=currency,
             end_date=end_date,
             estimated_hours=estimated_hours,
             is_private=is_private,
             is_shared=is_shared,
             name=name,
-            rate=rate,
             start_date=start_date,
             template=template,
             template_id=template_id,
