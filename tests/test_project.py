@@ -317,15 +317,31 @@ def test_update_project_all_params(response_mock: MockRouter, authed_workspace: 
     assert result == expected_result
 
 
-def test_update_project__invalid_color(authed_workspace: Workspace) -> None:
+def test_update_project__both_client_id_and_client_name(authed_workspace: Workspace) -> None:
     workspace_id = fake.random_int()
     project_id = fake.random_int()
-    error_message = "Invalid hex color. It should starts with # with 6 symbols after it"
-    valid_color = fake.color()
-    color = valid_color[1:] if fake.boolean() else valid_color[:-1]
+    error_message = "Both client_id and client_name provided"
 
     with pytest.raises(ValidationError, match=error_message):
-        _ = authed_workspace.update_project(workspace_id, project_id, color=color)
+        _ = authed_workspace.update_project(
+            workspace_id, project_id, client_id=fake.random_int(), client_name=fake.name()
+        )
+
+
+def test_update_project__invalid_timeframe(authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    project_id = fake.random_int()
+    start_date = fake.past_date()
+    end_date = fake.date_between(end_date=start_date).isoformat()
+    error_message = "Project timeframe is not valid"
+
+    with pytest.raises(ValidationError, match=error_message):
+        _ = authed_workspace.update_project(
+            workspace_id,
+            project_id,
+            start_date=start_date.isoformat(),
+            end_date=end_date,
+        )
 
 
 def test_delete_project(response_mock: MockRouter, authed_workspace: Workspace) -> None:

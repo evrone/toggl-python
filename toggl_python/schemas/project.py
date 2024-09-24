@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Dict, List, Optional, Union
 
-from pydantic import field_serializer, field_validator, model_validator
-from typing_extensions import Self
+from pydantic import field_serializer, model_validator
 
 from toggl_python.schemas.base import BaseSchema, SinceParamSchemaMixin
 
@@ -43,11 +42,14 @@ class ProjectResponse(BaseSchema):
     workspace_id: int
 
     @model_validator(mode="after")
-    @classmethod
-    def remove_optional_end_date(cls, data: Self) -> None:
+    def remove_optional_fields(self) -> ProjectResponse:
         """Remove field if Project object does not have it."""
-        if data.end_date is None:
-            del data.end_date
+        if self.end_date is None:
+            del self.end_date
+        if self.status is None:
+            del self.status
+
+        return self
 
 
 class ProjectQueryParams(SinceParamSchemaMixin, BaseSchema):
@@ -78,17 +80,14 @@ class MePaginatedProjectsQueryParams(SinceParamSchemaMixin, BaseSchema):
 class CreateProjectRequest(BaseSchema):
     active: Optional[bool] = None
     auto_estimates: Optional[bool] = None
-    billable: Optional[bool] = None
     client_id: Optional[int] = None
     client_name: Optional[str] = None
-    color: Optional[str] = None
     currency: Optional[str] = None
     end_date: Optional[date] = None
     estimated_hours: Optional[int] = None
     is_private: Optional[bool] = None
     is_shared: Optional[bool] = None
     name: Optional[str] = None
-    rate: Optional[int] = None
     start_date: Optional[date] = None
     template: Optional[bool] = None
     template_id: Optional[int] = None
@@ -100,15 +99,24 @@ class CreateProjectRequest(BaseSchema):
 
         return value.isoformat()
 
-    @field_validator("color")
+    @model_validator(mode="before")
     @classmethod
-    def validate_hex_color(cls, value: Optional[str]) -> Optional[str]:
-        if not value:
-            return value
+    def validate_model(
+        cls, data: Dict[str, Union[bool, int, str, date, None]]
+    ) -> Dict[str, Union[bool, int, str, date, None]]:
+        if data["client_id"] and data["client_name"]:
+            error_message = "Both client_id and client_name provided"
+            raise ValueError(error_message)
 
-        hex_color_length = 7
-        if value.startswith("#") and len(value) == hex_color_length:
-            return value
+        if (
+            data["start_date"]
+            and data["end_date"]
+            and (
+                datetime.fromisoformat(data["start_date"])
+                > datetime.fromisoformat(data["end_date"])
+            )
+        ):
+            error_message = "Project timeframe is not valid"
+            raise ValueError(error_message)
 
-        error_message = "Invalid hex color. It should starts with # with 6 symbols after it"
-        raise ValueError(error_message)
+        return data
