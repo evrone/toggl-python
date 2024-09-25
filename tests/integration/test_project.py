@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Union
 
 import pytest
 from toggl_python.exceptions import BadRequest
@@ -37,7 +37,8 @@ def test_create_project__all_params(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
     request_body = project_request_factory()
     # Requires existing object ids
-    del request_body["client_id"]
+    if "client_id" in request_body:
+        del request_body["client_id"]
     optional_fields = {"status"}
     expected_result = set(ProjectResponse.model_fields.keys()) - optional_fields
 
@@ -62,17 +63,65 @@ def test_get_projects__without_query_params(i_authed_workspace: Workspace) -> No
     _ = i_authed_workspace.delete_project(workspace_id, project.id)
 
 
+def test_get_projects__with_active_query_param(i_authed_workspace: Workspace) -> None:
+    workspace_id = int(os.environ["WORKSPACE_ID"])
+    project_prefix_name = fake.word()
+    active_project = i_authed_workspace.create_project(
+        workspace_id, active=True, name=f"{project_prefix_name}123"
+    )
+    irrelevant_project = i_authed_workspace.create_project(
+        workspace_id, active=False, name=f"{project_prefix_name}456"
+    )
+
+    # Filter by common name to exclude irrelevant projects
+    result = i_authed_workspace.get_projects(workspace_id, name=project_prefix_name, active=True)
+
+    project_ids = {project.id for project in result}
+    assert irrelevant_project.id not in project_ids
+    assert active_project.id in project_ids
+
+    _ = i_authed_workspace.delete_project(workspace_id, active_project.id)
+    _ = i_authed_workspace.delete_project(workspace_id, irrelevant_project.id)
+
+
+@pytest.mark.parametrize(
+    ("field_name", "field_value"),
+    [("billable", False), ("only_me", True)],
+)
+def test_get_projects__with_simple_query_params(
+    field_name: str, field_value: Union[bool, List[int]], i_authed_workspace: Workspace
+) -> None:
+    workspace_id = int(os.environ["WORKSPACE_ID"])
+    project_prefix_name = fake.word()
+    first_project = i_authed_workspace.create_project(
+        workspace_id, name=f"{project_prefix_name}123"
+    )
+    second_project = i_authed_workspace.create_project(
+        workspace_id, name=f"{project_prefix_name}456"
+    )
+
+    # Filter by common name to exclude irrelevant projects
+    result = i_authed_workspace.get_projects(
+        workspace_id, name=project_prefix_name, **{field_name: field_value}
+    )
+
+    project_ids = {project.id for project in result}
+    assert second_project.id in project_ids
+    assert first_project.id in project_ids
+
+    _ = i_authed_workspace.delete_project(workspace_id, first_project.id)
+    _ = i_authed_workspace.delete_project(workspace_id, second_project.id)
 
 
 def test_get_projects__since_query_param(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
     first_created_project = i_authed_workspace.create_project(
-        workspace_id, active=True, name=fake.word()
+        workspace_id, active=True, name=fake.uuid4()
     )
     # Necessary to make Projects creation time different
     time.sleep(1)
     last_created_project = i_authed_workspace.create_project(
-        workspace_id, active=True, name=fake.word()
+        workspace_id, active=True, name=fake.uuid4()
     )
     last_project_created_timestamp = int(last_created_project.created_at.timestamp())
 
@@ -88,10 +137,12 @@ def test_get_projects__since_query_param(i_authed_workspace: Workspace) -> None:
 
 def test_get_projects__with_statuses_query_params(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
-    archived_project = i_authed_workspace.create_project(workspace_id, name=fake.word())
-    active_project = i_authed_workspace.create_project(workspace_id, active=True, name=fake.word())
+    archived_project = i_authed_workspace.create_project(workspace_id, name=fake.uuid4())
+    active_project = i_authed_workspace.create_project(
+        workspace_id, active=True, name=fake.uuid4()
+    )
     upcoming_project = i_authed_workspace.create_project(
-        workspace_id, start_date=fake.future_date(), active=True, name=fake.word()
+        workspace_id, start_date=fake.future_date(), active=True, name=fake.uuid4()
     )
     start_date = fake.past_date()
     ended_project = i_authed_workspace.create_project(
@@ -99,7 +150,7 @@ def test_get_projects__with_statuses_query_params(i_authed_workspace: Workspace)
         start_date=start_date.isoformat(),
         end_date=fake.date_between(start_date=start_date).isoformat(),
         active=True,
-        name=fake.word(),
+        name=fake.uuid4(),
     )
     status_to_instance_id = {
         "archived": archived_project.id,
@@ -150,9 +201,9 @@ def test_get_projects__with_page_and_per_page(i_authed_workspace: Workspace) -> 
 def test_get_projects__only_templates(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
     template_project = i_authed_workspace.create_project(
-        workspace_id, template=True, name=fake.word()
+        workspace_id, template=True, name=fake.uuid4()
     )
-    usual_project = i_authed_workspace.create_project(workspace_id, active=True, name=fake.word())
+    usual_project = i_authed_workspace.create_project(workspace_id, active=True, name=fake.uuid4())
 
     result = i_authed_workspace.get_projects(workspace_id, only_templates=True)
 
@@ -208,8 +259,7 @@ def test_me_get_projects__without_query_params(
     another_project = i_authed_workspace.create_project(
         workspace_id, name=fake.uuid4(), active=True
     )
-    optional_fields = {"end_date"}
-    expected_result = set(ProjectResponse.model_fields.keys()) - optional_fields
+    expected_result = set(ProjectResponse.model_fields.keys())
 
     result = i_authed_user.get_projects()
 
@@ -291,6 +341,7 @@ def test_me_get_paginated_projects__without_query_params(
 def test_me_get_paginated_projects__since_query_param(
     i_authed_user: CurrentUser, i_authed_workspace: Workspace
 ) -> None:
+    # ? Add archived projects and check that it is not present?
     workspace_id = int(os.environ["WORKSPACE_ID"])
     first_created_project = i_authed_workspace.create_project(
         workspace_id, active=True, name=fake.uuid4()
@@ -380,7 +431,8 @@ def test_update_project__all_params(i_authed_workspace: Workspace) -> None:
     project = i_authed_workspace.create_project(workspace_id, name=fake.uuid4())
     request_body = project_request_factory()
     # Requires existing object ids
-    del request_body["client_id"]
+    if "client_id" in request_body:
+        del request_body["client_id"]
     expected_result = set(ProjectResponse.model_fields.keys())
 
     result = i_authed_workspace.update_project(workspace_id, project.id, **request_body)
