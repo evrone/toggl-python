@@ -52,6 +52,7 @@ def test_create_time_entry__all_fields(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
     request_body = time_entry_extended_request_factory(workspace_id)
     expected_result = set(MeTimeEntryResponse.model_fields.keys())
+    project = i_authed_workspace.create_project(workspace_id, name=fake.uuid4())
 
     result = i_authed_workspace.create_time_entry(
         workspace_id,
@@ -60,7 +61,7 @@ def test_create_time_entry__all_fields(i_authed_workspace: Workspace) -> None:
         billable=request_body["billable"],
         description=request_body["description"],
         duration=request_body["duration"],
-        project_id=os.environ["PROJECT_ID"],
+        project_id=project.id,
         stop=request_body["stop"],
         tags=request_body["tags"],
         user_id=os.environ["USER_ID"],
@@ -69,6 +70,7 @@ def test_create_time_entry__all_fields(i_authed_workspace: Workspace) -> None:
     assert result.model_fields_set == expected_result
 
     _ = i_authed_workspace.delete_time_entry(workspace_id=workspace_id, time_entry_id=result.id)
+    _ = i_authed_workspace.delete_project(workspace_id, project.id)
 
 
 def test_list_time_entries__with_start_and_end_date__datetime(

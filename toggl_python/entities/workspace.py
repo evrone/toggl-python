@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from toggl_python.api import ApiWrapper
-from toggl_python.schemas.project import ProjectQueryParams, ProjectResponse
+from toggl_python.schemas.project import CreateProjectRequest, ProjectQueryParams, ProjectResponse
 from toggl_python.schemas.time_entry import (
     BulkEditTimeEntriesOperation,
     BulkEditTimeEntriesResponse,
@@ -15,7 +15,7 @@ from toggl_python.schemas.workspace import GetWorkspacesQueryParams, WorkspaceRe
 
 
 if TYPE_CHECKING:
-    from datetime import datetime
+    from datetime import date, datetime
 
 
 class Workspace(ApiWrapper):
@@ -41,6 +41,58 @@ class Workspace(ApiWrapper):
         return [
             WorkspaceResponse.model_validate(workspace_data) for workspace_data in response_body
         ]
+
+    def create_project(  # noqa: PLR0913 - Too many arguments in function definition
+        self,
+        workspace_id: int,
+        active: Optional[bool] = None,
+        auto_estimates: Optional[bool] = None,
+        client_id: Optional[int] = None,
+        client_name: Optional[str] = None,
+        currency: Optional[str] = None,
+        end_date: Union[date, str, None] = None,
+        estimated_hours: Optional[int] = None,
+        is_private: Optional[bool] = None,
+        is_shared: Optional[bool] = None,
+        name: Optional[str] = None,
+        start_date: Union[date, str, None] = None,
+        template: Optional[bool] = None,
+        template_id: Optional[int] = None,
+    ) -> ProjectResponse:
+        """Allow to update Project instance fields which are available on free plan.
+
+        Request body parameters `billable`, `color`, `rate`, `fixed_fee` are available
+        only on paid plan. That is why they are not listed in method arguments.
+
+        Field `status` is affected by fields `active`, `start_date`, `end_date` and
+        cannot be changed explicitly.
+        """
+        request_body_schema = CreateProjectRequest(
+            active=active,
+            auto_estimates=auto_estimates,
+            client_id=client_id,
+            client_name=client_name,
+            currency=currency,
+            end_date=end_date,
+            estimated_hours=estimated_hours,
+            is_private=is_private,
+            is_shared=is_shared,
+            name=name,
+            start_date=start_date,
+            template=template,
+            template_id=template_id,
+        )
+        request_body = request_body_schema.model_dump(
+            mode="json", exclude_none=True, exclude_unset=True
+        )
+
+        response = self.client.post(
+            url=f"{self.prefix}/{workspace_id}/projects", json=request_body
+        )
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return ProjectResponse.model_validate(response_body)
 
     def get_project(self, workspace_id: int, project_id: int) -> ProjectResponse:
         response = self.client.get(url=f"{self.prefix}/{workspace_id}/projects/{project_id}")
@@ -92,6 +144,65 @@ class Workspace(ApiWrapper):
         response_body = response.json()
 
         return [ProjectResponse.model_validate(project_data) for project_data in response_body]
+
+    def update_project(  # noqa: PLR0913 - Too many arguments in function definition
+        self,
+        workspace_id: int,
+        project_id: int,
+        active: Optional[bool] = None,
+        auto_estimates: Optional[bool] = None,
+        client_id: Optional[int] = None,
+        client_name: Optional[str] = None,
+        currency: Optional[str] = None,
+        end_date: Union[date, str, None] = None,
+        estimated_hours: Optional[int] = None,
+        is_private: Optional[bool] = None,
+        is_shared: Optional[bool] = None,
+        name: Optional[str] = None,
+        start_date: Union[date, str, None] = None,
+        template: Optional[bool] = None,
+        template_id: Optional[int] = None,
+    ) -> ProjectResponse:
+        """Allow to update Project instance fields which are available on free plan.
+
+        Request body parameters `billable`, `color`, `rate`, `fixed_fee` are available
+        only on paid plan. That is why they are not listed in method arguments.
+
+        Field `status` is affected by fields `active`, `start_date`, `end_date` and
+        cannot be changed explicitly.
+        """
+        request_body_schema = CreateProjectRequest(
+            active=active,
+            auto_estimates=auto_estimates,
+            client_id=client_id,
+            client_name=client_name,
+            currency=currency,
+            end_date=end_date,
+            estimated_hours=estimated_hours,
+            is_private=is_private,
+            is_shared=is_shared,
+            name=name,
+            start_date=start_date,
+            template=template,
+            template_id=template_id,
+        )
+        request_body = request_body_schema.model_dump(
+            mode="json", exclude_none=True, exclude_unset=True
+        )
+
+        response = self.client.put(
+            url=f"{self.prefix}/{workspace_id}/projects/{project_id}", json=request_body
+        )
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return ProjectResponse.model_validate(response_body)
+
+    def delete_project(self, workspace_id: int, project_id: int) -> bool:
+        response = self.client.delete(url=f"{self.prefix}/{workspace_id}/projects/{project_id}")
+        self.raise_for_status(response)
+
+        return response.is_success
 
     def create_time_entry(
         self,
