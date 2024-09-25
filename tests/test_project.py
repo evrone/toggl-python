@@ -206,7 +206,7 @@ def test_me_get_projects__since(
 
 def test_me_get_projects__too_old_since_value(authed_current_user: CurrentUser) -> None:
     error_message = "Since cannot be older than 3 months"
-    since = int(fake.date_time_between(end_date="-3m1d").timestamp())
+    since = int(fake.date_time_between(end_date="-3m4d").timestamp())
 
     with pytest.raises(ValidationError, match=error_message):
         _ = authed_current_user.get_projects(since=since)
@@ -245,7 +245,7 @@ def test_me_get_paginated_projects__since_query_param(
 
 def test_me_get_paginated_projects__too_old_since_value(authed_current_user: CurrentUser) -> None:
     error_message = "Since cannot be older than 3 months"
-    since = int(fake.date_time_between(end_date="-3m1d").timestamp())
+    since = int(fake.date_time_between(end_date="-3m4d").timestamp())
 
     with pytest.raises(ValidationError, match=error_message):
         _ = authed_current_user.get_paginated_projects(since=since)
