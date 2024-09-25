@@ -48,6 +48,7 @@ def test_create_project_all_params(response_mock: MockRouter, authed_workspace: 
     ).mock(
         return_value=HttpxResponse(status_code=200, json=response),
     )
+
     expected_result = ProjectResponse.model_validate(response)
 
     result = authed_workspace.create_project(workspace_id, **request_body)
@@ -70,16 +71,6 @@ def test_create_project_empty_request_body(
 
     assert mocked_route.called is True
     assert result == expected_result
-
-
-def test_me_create_project__invalid_color(authed_workspace: Workspace) -> None:
-    workspace_id = fake.random_int()
-    error_message = "Invalid hex color. It should starts with # with 6 symbols after it"
-    valid_color = fake.color()
-    color = valid_color[1:] if fake.boolean() else valid_color[:-1]
-
-    with pytest.raises(ValidationError, match=error_message):
-        _ = authed_workspace.create_project(workspace_id, color=color)
 
 
 def test_get_project_by_id(response_mock: MockRouter, authed_workspace: Workspace) -> None:

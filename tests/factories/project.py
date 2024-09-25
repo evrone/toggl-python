@@ -13,28 +13,27 @@ except ImportError:
 
 
 def project_request_factory() -> Dict[str, Union[str, bool, int, None]]:
-    if fake.boolean():
-        client_id = fake.random_int()
-        client_name = None
-    else:
-        client_id = None
-        client_name = fake.word()
-
     start_date = fake.past_date()
 
-    return {
+    request_body = {
         "active": fake.boolean(),
         "auto_estimates": fake.boolean(),
-        "client_id": client_id,
-        "client_name": client_name,
         "currency": fake.currency_code(),
         "end_date": fake.date_between(start_date=start_date).isoformat(),
         "estimated_hours": fake.random_int(),
         "is_private": fake.boolean(),
         "is_shared": fake.boolean(),
-        "name": fake.word(),
+        "name": fake.uuid4(),
         "start_date": start_date.isoformat(),
+        "template": fake.boolean(),
     }
+
+    if fake.boolean():
+        request_body["client_id"] = fake.random_int()
+    else:
+        request_body["client_name"] = fake.word()
+
+    return request_body
 
 
 def project_response_factory(
