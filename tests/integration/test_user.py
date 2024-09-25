@@ -49,9 +49,13 @@ def test_me__ok(i_authed_user: CurrentUser) -> None:
 
 def test_me__with_related_data(i_authed_user: CurrentUser) -> None:
     expected_result = set(MeResponseWithRelatedData.model_fields.keys())
-    expected_result.remove("clients")
 
     result = i_authed_user.me(with_related_data=True)
+
+    # Clients fields is present if at least 1 client exists, on test account clients number
+    # is unpredictable
+    if "clients" not in result.model_fields_set:
+        expected_result.remove("clients")
 
     assert result.model_fields_set == expected_result
     assert result.workspaces[0] is not None
