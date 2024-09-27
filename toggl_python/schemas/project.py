@@ -124,16 +124,10 @@ class CreateProjectRequest(BaseSchema):
 
 
 class BulkEditProjectsFieldNames(str, Enum):
-    active = "active"
     auto_estimates = "auto_estimates"
-    client_id = "client_id"
-    client_name = "client_name"
-    currency = "currency"
     end_date = "end_date"
     estimated_hours = "estimated_hours"
     is_private = "is_private"
-    is_shared = "is_shared"
     project_name = "name"
     start_date = "start_date"
     template = "template"
-    template_id = "template_id"
