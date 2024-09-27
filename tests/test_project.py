@@ -369,15 +369,10 @@ def test_bulk_edit_projects__empty_operations(authed_workspace: Workspace) -> No
 @pytest.mark.parametrize(
     argnames=("field_name", "field_value"),
     argvalues=[
-        (BulkEditProjectsFieldNames.active.value, fake.boolean()),
         (BulkEditProjectsFieldNames.auto_estimates.value, fake.boolean()),
-        (BulkEditProjectsFieldNames.client_id.value, fake.random_int()),
-        (BulkEditProjectsFieldNames.client_name.value, fake.word()),
-        (BulkEditProjectsFieldNames.currency.value, fake.currency_code()),
         (BulkEditProjectsFieldNames.end_date.value, datetime_repr_factory()),
         (BulkEditProjectsFieldNames.estimated_hours.value, fake.random_int()),
         (BulkEditProjectsFieldNames.is_private.value, fake.boolean()),
-        (BulkEditProjectsFieldNames.is_shared.value, fake.boolean()),
         (BulkEditProjectsFieldNames.project_name.value, fake.uuid4()),
         (BulkEditProjectsFieldNames.start_date.value, fake.date()),
         (BulkEditProjectsFieldNames.template.value, fake.boolean()),
@@ -392,11 +387,14 @@ def test_bulk_edit_time_entries__ok(
 ) -> None:
     workspace_id = fake.random_int()
     project_ids = [fake.random_int(), fake.random_int()]
+    project_ids_repr = ",".join(str(item) for item in project_ids)
     edit_operation = BulkEditOperation(
         operation=operation, field_name=field_name, field_value=field_value
     )
     response = bulk_edit_response_factory()
-    mocked_route = response_mock.patch(f"/workspaces/{workspace_id}/projects/{project_ids}").mock(
+    mocked_route = response_mock.patch(
+        f"/workspaces/{workspace_id}/projects/{project_ids_repr}"
+    ).mock(
         return_value=HttpxResponse(status_code=200, json=response),
     )
     expected_result = BulkEditResponse.model_validate(response)

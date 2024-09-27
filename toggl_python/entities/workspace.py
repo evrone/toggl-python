@@ -207,13 +207,21 @@ class Workspace(ApiWrapper):
         project_ids: List[int],
         operations: List[BulkEditOperation],
     ) -> BulkEditResponse:
-        _ = BulkEditMethodParams(ids=project_ids, operations=operations)
+        """Bulk edit Projects with limited fields set.
+
+        It is possible to bulk edit fields `active`, `client_id`, `client_name`, `is_shared`,
+        `template_id`.
+        `currency` is also not allowed for non-admin users.
+        """
+        validated_args_schema = BulkEditMethodParams(ids=project_ids, operations=operations)
+        validated_args = validated_args_schema.model_dump(mode="json")
+        ids = validated_args["ids"]
         request_body = [
             operation.model_dump(mode="json", exclude_none=True) for operation in operations
         ]
 
         response = self.client.patch(
-            url=f"{self.prefix}/{workspace_id}/projects/{project_ids}", json=request_body
+            url=f"{self.prefix}/{workspace_id}/projects/{ids}", json=request_body
         )
         self.raise_for_status(response)
 
@@ -324,14 +332,16 @@ class Workspace(ApiWrapper):
         time_entry_ids: List[int],
         operations: List[BulkEditOperation],
     ) -> BulkEditResponse:
-        _ = BulkEditMethodParams(ids=time_entry_ids, operations=operations)
+        validated_args_schema = BulkEditMethodParams(ids=time_entry_ids, operations=operations)
+        validated_args = validated_args_schema.model_dump(mode="json")
+        ids = validated_args["ids"]
 
         request_body = [
             operation.model_dump(mode="json", exclude_none=True) for operation in operations
         ]
 
         response = self.client.patch(
-            url=f"{self.prefix}/{workspace_id}/time_entries/{time_entry_ids}", json=request_body
+            url=f"{self.prefix}/{workspace_id}/time_entries/{ids}", json=request_body
         )
         self.raise_for_status(response)
 

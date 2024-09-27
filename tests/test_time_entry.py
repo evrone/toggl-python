@@ -477,14 +477,15 @@ def test_bulk_edit_time_entries__ok(
     response_mock: MockRouter,
     authed_workspace: Workspace,
 ) -> None:
-    workspace_id = 123
-    time_entry_ids = [98765, 43210]
+    workspace_id = fake.random_int()
+    time_entry_ids = [fake.random_int() for _ in range(fake.random_int(min=1, max=8))]
+    time_entry_ids_repr = ",".join(str(item) for item in time_entry_ids)
     edit_operation = BulkEditOperation(
         operation=operation, field_name=field_name, field_value=field_value
     )
     response = bulk_edit_response_factory()
     mocked_route = response_mock.patch(
-        f"/workspaces/{workspace_id}/time_entries/{time_entry_ids}"
+        f"/workspaces/{workspace_id}/time_entries/{time_entry_ids_repr}"
     ).mock(
         return_value=Response(status_code=200, json=response),
     )

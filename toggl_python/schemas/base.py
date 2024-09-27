@@ -63,6 +63,7 @@ class BulkEditOperation(BaseSchema):
     ) -> Dict[str, Union[bool, str, int, AwareDatetime, List[int], List[str]]]:
         return {
             "op": self.operation,
+            # Used instead of f"/{self.field_name}" to avoid `/` escaping during JSON serialization
             "path": f"/{self.field_name}",
             "value": self.field_value,
         }
@@ -71,6 +72,10 @@ class BulkEditOperation(BaseSchema):
 class BulkEditMethodParams(BaseSchema):
     ids: List[int] = Field(max_length=100, min_length=1)
     operations: List[BulkEditOperation] = Field(min_length=1)
+
+    @field_serializer("ids", when_used="json")
+    def serialize_ids(self, value: List[int]) -> str:
+        return ",".join(str(item) for item in value)
 
 
 class BulkEditResponseFailure(BaseSchema):
