@@ -201,6 +201,26 @@ class Workspace(ApiWrapper):
         response_body = response.json()
         return ProjectResponse.model_validate(response_body)
 
+    def bulk_edit_projects(
+        self,
+        workspace_id: int,
+        project_ids: List[int],
+        operations: List[BulkEditOperation],
+    ) -> BulkEditResponse:
+        _ = BulkEditMethodParams(ids=project_ids, operations=operations)
+        request_body = [
+            operation.model_dump(mode="json", exclude_none=True) for operation in operations
+        ]
+
+        response = self.client.patch(
+            url=f"{self.prefix}/{workspace_id}/projects/{project_ids}", json=request_body
+        )
+        self.raise_for_status(response)
+
+        response_body = response.json()
+
+        return BulkEditResponse.model_validate(response_body)
+
     def delete_project(self, workspace_id: int, project_id: int) -> bool:
         response = self.client.delete(url=f"{self.prefix}/{workspace_id}/projects/{project_id}")
         self.raise_for_status(response)
