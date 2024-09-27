@@ -2,26 +2,18 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import List, Optional
 
 from pydantic import (
     AwareDatetime,
     field_serializer,
     field_validator,
-    model_serializer,
     model_validator,
 )
 from typing_extensions import Self
 
 from toggl_python.schemas.base import BaseSchema, SinceParamSchemaMixin
 from toggl_python.schemas.project import ProjectResponse  # noqa: TCH001
-
-
-class BulkEditTimeEntriesOperations(str, Enum):
-    add = "add"
-    remove = "remove"
-    # Renamed to avoid using system keyword
-    change = "replace"
 
 
 class BulkEditTimeEntriesFieldNames(str, Enum):
@@ -169,29 +161,3 @@ class TimeEntryCreateRequest(BaseSchema):
             raise ValueError(error_message)
 
         return self
-
-
-class BulkEditTimeEntriesOperation(BaseSchema):
-    operation: BulkEditTimeEntriesOperations
-    field_name: BulkEditTimeEntriesFieldNames
-    field_value: Union[bool, str, int, AwareDatetime, List[int], List[str]]
-
-    @model_serializer(when_used="json")
-    def serialize_schema(
-        self,
-    ) -> Dict[str, Union[bool, str, int, AwareDatetime, List[int], List[str]]]:
-        return {
-            "op": self.operation,
-            "path": f"/{self.field_name}",
-            "value": self.field_value,
-        }
-
-
-class BulkEditTimeEntriesResponseFailure(BaseSchema):
-    id: int
-    message: str
-
-
-class BulkEditTimeEntriesResponse(BaseSchema):
-    success: List[int]
-    failure: List[BulkEditTimeEntriesResponseFailure]

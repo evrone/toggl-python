@@ -3,10 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from toggl_python.api import ApiWrapper
+from toggl_python.schemas.base import (
+    BulkEditMethodParams,
+    BulkEditOperation,
+    BulkEditResponse,
+)
 from toggl_python.schemas.project import CreateProjectRequest, ProjectQueryParams, ProjectResponse
 from toggl_python.schemas.time_entry import (
-    BulkEditTimeEntriesOperation,
-    BulkEditTimeEntriesResponse,
     MeTimeEntryResponse,
     TimeEntryCreateRequest,
     TimeEntryRequest,
@@ -299,22 +302,9 @@ class Workspace(ApiWrapper):
         self,
         workspace_id: int,
         time_entry_ids: List[int],
-        operations: List[BulkEditTimeEntriesOperation],
-    ) -> MeTimeEntryResponse:
-        if not time_entry_ids:
-            error_message = "Specify at least one TimeEntry ID"
-            raise ValueError(error_message)
-
-        max_time_entries_ids = 100
-        if len(time_entry_ids) > max_time_entries_ids:
-            error_message = (
-                f"Limit to max TimeEntry IDs exceeded. "
-                f"Max {max_time_entries_ids} ids per request are allowed"
-            )
-            raise ValueError(error_message)
-        if not operations:
-            error_message = "Specify at least one edit operation"
-            raise ValueError(error_message)
+        operations: List[BulkEditOperation],
+    ) -> BulkEditResponse:
+        _ = BulkEditMethodParams(ids=time_entry_ids, operations=operations)
 
         request_body = [
             operation.model_dump(mode="json", exclude_none=True) for operation in operations
@@ -327,7 +317,7 @@ class Workspace(ApiWrapper):
 
         response_body = response.json()
 
-        return BulkEditTimeEntriesResponse.model_validate(response_body)
+        return BulkEditResponse.model_validate(response_body)
 
     def stop_time_entry(self, workspace_id: int, time_entry_id: int) -> MeTimeEntryResponse:
         response = self.client.patch(

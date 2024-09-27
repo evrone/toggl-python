@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timezone
-from random import randint
 from typing import TYPE_CHECKING, Dict, List, Union
 from unittest.mock import Mock, patch
 
@@ -9,17 +8,16 @@ import pytest
 from httpx import Response
 from pydantic import ValidationError
 from toggl_python.exceptions import BadRequest
+from toggl_python.schemas.base import BulkEditOperation, BulkEditOperations, BulkEditResponse
 from toggl_python.schemas.time_entry import (
     BulkEditTimeEntriesFieldNames,
-    BulkEditTimeEntriesOperation,
-    BulkEditTimeEntriesOperations,
-    BulkEditTimeEntriesResponse,
     MeTimeEntryResponse,
     MeTimeEntryWithMetaResponse,
     MeWebTimerResponse,
 )
 
 from tests.conftest import fake
+from tests.factories.base import bulk_edit_response_factory, datetime_repr_factory
 from tests.factories.time_entry import (
     time_entry_extended_request_factory,
     time_entry_request_factory,
@@ -27,7 +25,6 @@ from tests.factories.time_entry import (
 )
 from tests.responses.me_get import ME_WEB_TIMER_RESPONSE
 from tests.responses.time_entry_get import ME_TIME_ENTRY_RESPONSE, ME_TIME_ENTRY_WITH_META_RESPONSE
-from tests.responses.time_entry_put_and_patch import BULK_EDIT_TIME_ENTRIES_RESPONSE
 
 
 if TYPE_CHECKING:
@@ -118,6 +115,7 @@ def test_create_time_entry__invalid_start_stop_and_duration(authed_workspace: Wo
             duration=request_body["duration"] + fake.random_int(),
             stop=request_body["stop"],
         )
+
 
 def test_get_time_entry__without_query_params(
     response_mock: MockRouter, authed_current_user: CurrentUser
@@ -419,68 +417,78 @@ def test_delete_time_entry__ok(response_mock: MockRouter, authed_workspace: Work
 
 
 def test_bulk_edit_time_entries__too_much_ids(authed_workspace: Workspace) -> None:
-    workspace_id = 123
-    time_entry_ids = [randint(100000, 999999) for _ in range(101)]  # noqa: S311
-    error_message = "Limit to max TimeEntry IDs exceeded. "
+    workspace_id = fake.random_int()
+    time_entry_ids = [fake.random_int() for _ in range(101)]
+    error_message = "List should have at most 100 items after validation"
 
     with pytest.raises(ValueError, match=error_message):
         _ = authed_workspace.bulk_edit_time_entries(workspace_id, time_entry_ids, operations=[])
 
 
 def test_bulk_edit_time_entries__empty_time_entry_ids(authed_workspace: Workspace) -> None:
-    workspace_id = 123
-    error_message = "Specify at least one TimeEntry ID"
+    workspace_id = fake.random_int()
+    error_message = "List should have at least 1 item after validation"
 
     with pytest.raises(ValueError, match=error_message):
         _ = authed_workspace.bulk_edit_time_entries(workspace_id, time_entry_ids=[], operations=[])
 
 
 def test_bulk_edit_time_entries__empty_operations(authed_workspace: Workspace) -> None:
-    workspace_id = 123
-    time_entry_ids = [12345677]
-    error_message = "Specify at least one edit operation"
+    workspace_id = fake.random_int()
+    time_entry_ids = [fake.random_int()]
+    error_message = "List should have at least 1 item after validation"
 
     with pytest.raises(ValueError, match=error_message):
         _ = authed_workspace.bulk_edit_time_entries(workspace_id, time_entry_ids, operations=[])
 
 
 @pytest.mark.parametrize(
-    argnames=("operation"), argvalues=[item.value for item in BulkEditTimeEntriesOperations]
+    argnames=("operation"), argvalues=[item.value for item in BulkEditOperations]
 )
 @pytest.mark.parametrize(
     argnames=("field_name", "field_value"),
     argvalues=[
-        (BulkEditTimeEntriesFieldNames.billable.value, True),
-        (BulkEditTimeEntriesFieldNames.description.value, "updated description"),
-        (BulkEditTimeEntriesFieldNames.duration.value, -1),
-        (BulkEditTimeEntriesFieldNames.project_id.value, 757542305),
-        (BulkEditTimeEntriesFieldNames.shared_with_user_ids.value, [1243543643, 676586868]),
-        (BulkEditTimeEntriesFieldNames.start.value, datetime(2024, 5, 10, tzinfo=timezone.utc)),
-        (BulkEditTimeEntriesFieldNames.stop.value, datetime(2022, 4, 15, tzinfo=timezone.utc)),
-        (BulkEditTimeEntriesFieldNames.tag_ids.value, [24032, 354742502]),
-        (BulkEditTimeEntriesFieldNames.tags.value, ["new tag"]),
-        (BulkEditTimeEntriesFieldNames.task_id.value, 1593268409),
-        (BulkEditTimeEntriesFieldNames.user_id.value, 573250897),
+        (BulkEditTimeEntriesFieldNames.billable.value, fake.boolean()),
+        (BulkEditTimeEntriesFieldNames.description.value, fake.text(max_nb_chars=32)),
+        (BulkEditTimeEntriesFieldNames.duration.value, fake.random_int(min=-1, max=128)),
+        (BulkEditTimeEntriesFieldNames.project_id.value, fake.random_int()),
+        (
+            BulkEditTimeEntriesFieldNames.shared_with_user_ids.value,
+            [fake.random_int() for _ in range(fake.random_int(max=10))],
+        ),
+        (BulkEditTimeEntriesFieldNames.start.value, datetime_repr_factory()),
+        (BulkEditTimeEntriesFieldNames.stop.value, datetime_repr_factory()),
+        (
+            BulkEditTimeEntriesFieldNames.tag_ids.value,
+            [fake.random_int() for _ in range(fake.random_int(max=10))],
+        ),
+        (
+            BulkEditTimeEntriesFieldNames.tags.value,
+            [fake.word() for _ in range(fake.random_int(max=10))],
+        ),
+        (BulkEditTimeEntriesFieldNames.task_id.value, fake.random_int()),
+        (BulkEditTimeEntriesFieldNames.user_id.value, fake.random_int()),
     ],
 )
 def test_bulk_edit_time_entries__ok(
     field_name: BulkEditTimeEntriesFieldNames,
     field_value: Union[str, int],
-    operation: BulkEditTimeEntriesOperations,
+    operation: BulkEditOperations,
     response_mock: MockRouter,
     authed_workspace: Workspace,
 ) -> None:
     workspace_id = 123
     time_entry_ids = [98765, 43210]
-    edit_operation = BulkEditTimeEntriesOperation(
+    edit_operation = BulkEditOperation(
         operation=operation, field_name=field_name, field_value=field_value
     )
+    response = bulk_edit_response_factory()
     mocked_route = response_mock.patch(
         f"/workspaces/{workspace_id}/time_entries/{time_entry_ids}"
     ).mock(
-        return_value=Response(status_code=200, json=BULK_EDIT_TIME_ENTRIES_RESPONSE),
+        return_value=Response(status_code=200, json=response),
     )
-    expected_result = BulkEditTimeEntriesResponse.model_validate(BULK_EDIT_TIME_ENTRIES_RESPONSE)
+    expected_result = BulkEditResponse.model_validate(response)
 
     result = authed_workspace.bulk_edit_time_entries(
         workspace_id, time_entry_ids, operations=[edit_operation]
