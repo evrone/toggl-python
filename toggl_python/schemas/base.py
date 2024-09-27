@@ -63,7 +63,6 @@ class BulkEditOperation(BaseSchema):
     ) -> Dict[str, Union[bool, str, int, AwareDatetime, List[int], List[str]]]:
         return {
             "op": self.operation,
-            # Used instead of f"/{self.field_name}" to avoid `/` escaping during JSON serialization
             "path": f"/{self.field_name}",
             "value": self.field_value,
         }

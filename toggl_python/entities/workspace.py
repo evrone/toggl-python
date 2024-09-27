@@ -209,7 +209,7 @@ class Workspace(ApiWrapper):
     ) -> BulkEditResponse:
         """Bulk edit Projects with limited fields set.
 
-        It is possible to bulk edit fields `active`, `client_id`, `client_name`, `is_shared`,
+        It is not possible to bulk edit fields `active`, `client_id`, `client_name`, `is_shared`,
         `template_id`.
         `currency` is also not allowed for non-admin users.
         """
