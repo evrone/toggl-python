@@ -7,9 +7,11 @@ from unittest.mock import Mock, patch
 import pytest
 from httpx import Response as HttpxResponse
 from pydantic import ValidationError
-from toggl_python.schemas.project import ProjectResponse
+from toggl_python.schemas.base import BulkEditOperation, BulkEditOperations, BulkEditResponse
+from toggl_python.schemas.project import BulkEditProjectsFieldNames, ProjectResponse
 
 from tests.conftest import fake
+from tests.factories.base import bulk_edit_response_factory, datetime_repr_factory
 from tests.factories.project import project_request_factory, project_response_factory
 from tests.responses.project_get import PROJECT_RESPONSE
 
@@ -333,6 +335,76 @@ def test_update_project__invalid_timeframe(authed_workspace: Workspace) -> None:
             start_date=start_date.isoformat(),
             end_date=end_date,
         )
+
+
+def test_bulk_edit_projects__too_much_ids(authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    project_ids = [fake.random_int() for _ in range(101)]
+    error_message = "List should have at most 100 items after validation"
+
+    with pytest.raises(ValueError, match=error_message):
+        _ = authed_workspace.bulk_edit_projects(workspace_id, project_ids, operations=[])
+
+
+def test_bulk_edit_projects__empty_projects_ids(authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    error_message = "List should have at least 1 item after validation"
+
+    with pytest.raises(ValueError, match=error_message):
+        _ = authed_workspace.bulk_edit_projects(workspace_id, project_ids=[], operations=[])
+
+
+def test_bulk_edit_projects__empty_operations(authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    project_ids = [fake.random_int()]
+    error_message = "List should have at least 1 item after validation"
+
+    with pytest.raises(ValueError, match=error_message):
+        _ = authed_workspace.bulk_edit_projects(workspace_id, project_ids, operations=[])
+
+
+@pytest.mark.parametrize(
+    argnames=("operation"), argvalues=[item.value for item in BulkEditOperations]
+)
+@pytest.mark.parametrize(
+    argnames=("field_name", "field_value"),
+    argvalues=[
+        (BulkEditProjectsFieldNames.auto_estimates.value, fake.boolean()),
+        (BulkEditProjectsFieldNames.end_date.value, datetime_repr_factory()),
+        (BulkEditProjectsFieldNames.estimated_hours.value, fake.random_int()),
+        (BulkEditProjectsFieldNames.is_private.value, fake.boolean()),
+        (BulkEditProjectsFieldNames.project_name.value, fake.uuid4()),
+        (BulkEditProjectsFieldNames.start_date.value, fake.date()),
+        (BulkEditProjectsFieldNames.template.value, fake.boolean()),
+    ],
+)
+def test_bulk_edit_time_entries__ok(
+    field_name: BulkEditProjectsFieldNames,
+    field_value: Union[str, int],
+    operation: BulkEditOperations,
+    response_mock: MockRouter,
+    authed_workspace: Workspace,
+) -> None:
+    workspace_id = fake.random_int()
+    project_ids = [fake.random_int(), fake.random_int()]
+    project_ids_repr = ",".join(str(item) for item in project_ids)
+    edit_operation = BulkEditOperation(
+        operation=operation, field_name=field_name, field_value=field_value
+    )
+    response = bulk_edit_response_factory()
+    mocked_route = response_mock.patch(
+        f"/workspaces/{workspace_id}/projects/{project_ids_repr}"
+    ).mock(
+        return_value=HttpxResponse(status_code=200, json=response),
+    )
+    expected_result = BulkEditResponse.model_validate(response)
+
+    result = authed_workspace.bulk_edit_projects(
+        workspace_id, project_ids, operations=[edit_operation]
+    )
+
+    assert mocked_route.called is True
+    assert result == expected_result
 
 
 def test_delete_project(response_mock: MockRouter, authed_workspace: Workspace) -> None:

@@ -1,9 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from enum import Enum
+from typing import Dict, List, Optional, Union
 
-from pydantic import AwareDatetime, BaseModel, field_serializer, field_validator
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    Field,
+    field_serializer,
+    field_validator,
+    model_serializer,
+)
 
 
 class BaseSchema(BaseModel):
@@ -35,3 +43,45 @@ class SinceParamSchemaMixin(BaseSchema):
             return value
 
         return int(value.timestamp())
+
+
+class BulkEditOperations(str, Enum):
+    add = "add"
+    remove = "remove"
+    # Renamed to avoid using system keyword
+    change = "replace"
+
+
+class BulkEditOperation(BaseSchema):
+    operation: BulkEditOperations
+    field_name: str
+    field_value: Union[bool, str, int, AwareDatetime, List[int], List[str]]
+
+    @model_serializer(when_used="json")
+    def serialize_schema(
+        self,
+    ) -> Dict[str, Union[bool, str, int, AwareDatetime, List[int], List[str]]]:
+        return {
+            "op": self.operation,
+            "path": f"/{self.field_name}",
+            "value": self.field_value,
+        }
+
+
+class BulkEditMethodParams(BaseSchema):
+    ids: List[int] = Field(max_length=100, min_length=1)
+    operations: List[BulkEditOperation] = Field(min_length=1)
+
+    @field_serializer("ids", when_used="json")
+    def serialize_ids(self, value: List[int]) -> str:
+        return ",".join(str(item) for item in value)
+
+
+class BulkEditResponseFailure(BaseSchema):
+    id: int
+    message: str
+
+
+class BulkEditResponse(BaseSchema):
+    success: List[int]
+    failure: List[BulkEditResponseFailure]

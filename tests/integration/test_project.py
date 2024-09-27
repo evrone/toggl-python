@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING, List, Union
 
 import pytest
 from toggl_python.exceptions import BadRequest
-from toggl_python.schemas.project import ProjectResponse
+from toggl_python.schemas.base import BulkEditOperation, BulkEditOperations, BulkEditResponse
+from toggl_python.schemas.project import BulkEditProjectsFieldNames, ProjectResponse
 
 from tests.conftest import fake
 from tests.factories.project import project_request_factory
@@ -438,6 +439,52 @@ def test_update_project__all_params(i_authed_workspace: Workspace) -> None:
     result = i_authed_workspace.update_project(workspace_id, project.id, **request_body)
 
     assert result.model_fields_set == expected_result
+
+    _ = i_authed_workspace.delete_project(workspace_id, project.id)
+
+
+def test_bulk_edit_projects(i_authed_workspace: Workspace) -> None:
+    workspace_id = int(os.environ["WORKSPACE_ID"])
+    project = i_authed_workspace.create_project(workspace_id, name=fake.uuid4(), active=True)
+    another_project = i_authed_workspace.create_project(
+        workspace_id, name=fake.uuid4(), active=True
+    )
+    full_request_body = project_request_factory()
+    allowed_fields = {item.value for item in BulkEditProjectsFieldNames}
+    random_param = fake.random_element(allowed_fields)
+    edit_operation = BulkEditOperation(
+        operation=BulkEditOperations.change,
+        field_name=random_param,
+        field_value=full_request_body[random_param],
+    )
+    expected_result = set(BulkEditResponse.model_fields.keys())
+
+    result = i_authed_workspace.bulk_edit_projects(
+        workspace_id, project_ids=[project.id, another_project.id], operations=[edit_operation]
+    )
+
+    assert result.model_fields_set == expected_result
+    assert project.id in result.success
+    assert another_project.id in result.success
+
+    _ = i_authed_workspace.delete_project(workspace_id, project.id)
+    _ = i_authed_workspace.delete_project(workspace_id, another_project.id)
+
+
+def test_bulk_edit_projects__forbid_to_edit_currency(i_authed_workspace: Workspace) -> None:
+    workspace_id = int(os.environ["WORKSPACE_ID"])
+    project = i_authed_workspace.create_project(workspace_id, name=fake.uuid4(), active=True)
+    edit_operation = BulkEditOperation(
+        operation=BulkEditOperations.change,
+        field_name="currency",
+        field_value=fake.currency_code(),
+    )
+    error_message = "User can not edit project billing info"
+
+    with pytest.raises(BadRequest, match=error_message):
+        _ = i_authed_workspace.bulk_edit_projects(
+            workspace_id, project_ids=[project.id], operations=[edit_operation]
+        )
 
     _ = i_authed_workspace.delete_project(workspace_id, project.id)
 

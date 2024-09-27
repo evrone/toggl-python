@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from enum import Enum
 from typing import Dict, List, Optional, Union
 
 from pydantic import field_serializer, model_validator
@@ -120,3 +121,13 @@ class CreateProjectRequest(BaseSchema):
             raise ValueError(error_message)
 
         return data
+
+
+class BulkEditProjectsFieldNames(str, Enum):
+    auto_estimates = "auto_estimates"
+    end_date = "end_date"
+    estimated_hours = "estimated_hours"
+    is_private = "is_private"
+    project_name = "name"
+    start_date = "start_date"
+    template = "template"
