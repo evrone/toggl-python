@@ -18,6 +18,19 @@ env:
   RUFF_VERSION: "0.6.7"
 
 jobs:
+  check-pr-diff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check PR diff size
+        uses: ./.github/actions/large-pr-check
+        with:
+          target_branch: ${{ github.event.pull_request.base.ref }}
+          max_lines_changed: 300
+
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -36,6 +49,9 @@ jobs:
 
       - name: Run Ruff
         run: ruff check --output-format=github .
+
+      - name: Spell Check
+        uses: crate-ci/typos@master
 
   test:
     runs-on: ubuntu-latest
