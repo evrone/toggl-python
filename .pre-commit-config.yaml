@@ -41,3 +41,10 @@ repos:
         stages: [pre-push]
         language: python
         types: [python]
+      - id: check-pr-size
+        name: check-pr-size
+        entry: chmod +x scripts/large-pr-checker.sh && ./large-pr-checker.sh
+        pass_filenames: false
+        stages: [pre-push]
+        language: system
+        types: [python]
