@@ -44,8 +44,18 @@ class WorkspaceResponseBase(BaseSchema):
     suspended_at: Optional[datetime]
     working_hours_in_minutes: Optional[int]
 
+
 class WorkspaceResponse(WorkspaceResponseBase):
     pass
 
+
 class GetWorkspacesQueryParams(SinceParamSchemaMixin, BaseSchema):
     pass
+
+
+class UpdateWorkspaceRequest(BaseSchema):
+    admins: Optional[List[int]] = None
+    only_admins_may_create_tags: Optional[bool] = None
+    only_admins_see_team_dashboard: Optional[bool] = None
+    reports_collapse: Optional[bool] = None
+    name: Optional[str] = Field(default=None, min_length=1, max_length=140)
