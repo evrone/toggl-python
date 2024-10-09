@@ -14,7 +14,11 @@ from toggl_python.schemas.time_entry import (
     TimeEntryCreateRequest,
     TimeEntryRequest,
 )
-from toggl_python.schemas.workspace import GetWorkspacesQueryParams, WorkspaceResponse
+from toggl_python.schemas.workspace import (
+    GetWorkspacesQueryParams,
+    UpdateWorkspaceRequest,
+    WorkspaceResponse,
+)
 
 
 if TYPE_CHECKING:
@@ -44,6 +48,39 @@ class Workspace(ApiWrapper):
         return [
             WorkspaceResponse.model_validate(workspace_data) for workspace_data in response_body
         ]
+
+    def update(
+        self,
+        workspace_id: int,
+        admins: Optional[List[int]] = None,
+        only_admins_may_create_tags: Optional[bool] = None,
+        only_admins_see_team_dashboard: Optional[bool] = None,
+        reports_collapse: Optional[bool] = None,
+        name: Optional[str] = None,
+    ) -> WorkspaceResponse:
+        """Allow to update Workspace instance fields which are available on free plan.
+
+        Request body parameters `default_hourly_rate`, `default_currency`, `rounding`,
+        `rounding_minutes`, `only_admins_see_billable_rates`, `projects_billable_by_default`,
+        `rate_change_mode`, `project_private_by_default`, `projects_enforce_billable` are
+        available only on paid plan. That is why they are not listed in method arguments.
+        """
+        request_body_schema = UpdateWorkspaceRequest(
+            admins=admins,
+            only_admins_may_create_tags=only_admins_may_create_tags,
+            only_admins_see_team_dashboard=only_admins_see_team_dashboard,
+            reports_collapse=reports_collapse,
+            name=name,
+        )
+        request_body = request_body_schema.model_dump(
+            mode="json", exclude_none=True, exclude_unset=True
+        )
+
+        response = self.client.put(url=f"{self.prefix}/{workspace_id}", json=request_body)
+        self.raise_for_status(response)
+
+        response_body = response.json()
+        return WorkspaceResponse.model_validate(response_body)
 
     def create_project(  # noqa: PLR0913 - Too many arguments in function definition
         self,

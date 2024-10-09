@@ -10,7 +10,6 @@ from toggl_python.schemas.base import BaseSchema, SinceParamSchemaMixin
 
 class WorkspaceResponseBase(BaseSchema):
     admin: bool
-    api_token: Optional[str] = Field(default=None, deprecated=True)
     at: datetime
     business_ws: bool = Field(description="Is workspace on Premium subscription")
     csv_upload: Optional[List]
@@ -30,7 +29,6 @@ class WorkspaceResponseBase(BaseSchema):
     organization_id: int
     permissions: Optional[List[str]]
     premium: bool
-    profile: int = Field(deprecated=True)
     projects_billable_by_default: bool
     projects_enforce_billable: bool
     projects_private_by_default: bool
@@ -40,12 +38,21 @@ class WorkspaceResponseBase(BaseSchema):
     rounding: int = Field(le=1, ge=-1)
     rounding_minutes: int
     server_deleted_at: Optional[datetime]
-    subscription: Optional[List]
     suspended_at: Optional[datetime]
     working_hours_in_minutes: Optional[int]
+
 
 class WorkspaceResponse(WorkspaceResponseBase):
     pass
 
+
 class GetWorkspacesQueryParams(SinceParamSchemaMixin, BaseSchema):
     pass
+
+
+class UpdateWorkspaceRequest(BaseSchema):
+    admins: Optional[List[int]] = None
+    only_admins_may_create_tags: Optional[bool] = None
+    only_admins_see_team_dashboard: Optional[bool] = None
+    reports_collapse: Optional[bool] = None
+    name: Optional[str] = Field(default=None, min_length=1, max_length=140)

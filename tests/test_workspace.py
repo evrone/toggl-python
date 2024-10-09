@@ -9,6 +9,8 @@ from httpx import Response as HttpxResponse
 from pydantic import ValidationError
 from toggl_python.schemas.workspace import WorkspaceResponse
 
+from tests.conftest import fake
+from tests.factories.workspace import workspace_request_factory, workspace_response_factory
 from tests.responses.workspace_get import WORKSPACE_RESPONSE
 
 
@@ -84,3 +86,53 @@ def test_get_workspaces__too_old_since_value(
 
     with pytest.raises(ValidationError, match=error_message):
         _ = authed_workspace.list(since=since)
+
+
+@pytest.mark.parametrize(
+    argnames="workspace_name, error_message",
+    argvalues=(
+        ("", "String should have at least 1 character"),
+        (fake.pystr(min_chars=140, max_chars=200), "String should have at most 140 character"),
+    ),
+)
+def test_update__invalid_workspace_name(
+    workspace_name: str, error_message: str, authed_workspace: Workspace
+) -> None:
+    workspace_id = fake.random_int()
+
+    with pytest.raises(ValidationError, match=error_message):
+        _ = authed_workspace.update(workspace_id, name=workspace_name)
+
+
+def test_update(response_mock: MockRouter, authed_workspace: Workspace) -> None:
+    workspace_id = fake.random_int()
+    full_request_body = workspace_request_factory()
+    random_param = fake.random_element(full_request_body.keys())
+    request_body = {random_param: full_request_body[random_param]}
+    response = workspace_response_factory()
+    mocked_route = response_mock.put(f"/workspaces/{workspace_id}", json=request_body).mock(
+        return_value=HttpxResponse(status_code=200, json=response),
+    )
+    expected_result = WorkspaceResponse.model_validate(response)
+
+    result = authed_workspace.update(workspace_id, **request_body)
+
+    assert mocked_route.called is True
+    assert result == expected_result
+
+
+def test_update__all_params(
+    response_mock: MockRouter, authed_workspace: Workspace
+) -> None:
+    workspace_id = fake.random_int()
+    request_body = workspace_request_factory()
+    response = workspace_response_factory(workspace_id)
+    mocked_route = response_mock.put(f"/workspaces/{workspace_id}", json=request_body).mock(
+        return_value=HttpxResponse(status_code=200, json=response),
+    )
+    expected_result = WorkspaceResponse.model_validate(response)
+
+    result = authed_workspace.update(workspace_id, **request_body)
+
+    assert mocked_route.called is True
+    assert result == expected_result
