@@ -37,7 +37,6 @@ def test_update(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
     excluded_fields = {"admins", "only_admins_may_create_tags"}
     full_request_body = workspace_request_factory(exclude=excluded_fields)
-    workspace = i_authed_workspace.get(workspace_id)
     random_param = fake.random_element(full_request_body.keys())
     request_body = {random_param: full_request_body[random_param]}
     workspace = i_authed_workspace.get(workspace_id)
