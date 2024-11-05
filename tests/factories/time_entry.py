@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
@@ -12,10 +13,10 @@ if TYPE_CHECKING:
     from pydantic_core import TzInfo
 
 
-try:
-    import zoneinfo
-except ImportError:
+if sys.version_info < (3, 9):
     from backports import zoneinfo
+else:
+    import zoneinfo
 
 
 def _stop_datetime_repr_factory(

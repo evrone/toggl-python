@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+import sys
 from typing import Dict, Optional, Union
 
 from tests.conftest import fake
 from tests.factories.base import datetime_repr_factory
 
 
-try:
-    import zoneinfo
-except ImportError:
+if sys.version_info < (3, 9):
     from backports import zoneinfo
+else:
+    import zoneinfo
 
 
 def project_request_factory() -> Dict[str, Union[str, bool, int, None]]:
