@@ -30,7 +30,6 @@ class ProjectResponse(BaseSchema):
     is_private: bool
     is_shared: bool
     name: str
-    permissions: Optional[str]
     rate: Optional[int]
     rate_last_updated: Optional[datetime]
     recurring: bool

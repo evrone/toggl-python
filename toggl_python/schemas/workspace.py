@@ -27,7 +27,6 @@ class WorkspaceResponseBase(BaseSchema):
     only_admins_see_billable_rates: bool
     only_admins_see_team_dashboard: bool
     organization_id: int
-    permissions: Optional[List[str]]
     premium: bool
     projects_billable_by_default: bool
     projects_enforce_billable: bool

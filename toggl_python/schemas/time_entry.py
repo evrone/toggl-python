@@ -45,7 +45,6 @@ class MeTimeEntryResponse(MeTimeEntryResponseBase):
     duration: int
     duronly: bool
     id: int
-    permissions: Optional[List]
     server_deleted_at: Optional[datetime]
     start: datetime
     stop: Optional[datetime]

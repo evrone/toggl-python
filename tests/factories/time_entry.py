@@ -89,7 +89,6 @@ def time_entry_response_factory(
         "duration": duration or fake.random_int(),
         "duronly": fake.boolean(),
         "id": fake.random_number(digits=11, fix_len=True),
-        "permissions": None,
         "project_id": project_id or fake.random_int(),
         "server_deleted_at": (
             fake.date_time_this_month(tzinfo=tz).isoformat(timespec="seconds")

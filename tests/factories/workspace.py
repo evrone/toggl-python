@@ -56,7 +56,6 @@ def workspace_response_factory(
         "only_admins_see_billable_rates": fake.boolean(),
         "only_admins_see_team_dashboard": fake.boolean(),
         "organization_id": 8364520,
-        "permissions": None,
         "premium": fake.boolean(),
         "projects_billable_by_default": fake.boolean(),
         "projects_enforce_billable": fake.boolean(),

@@ -23,7 +23,6 @@ WORKSPACE_RESPONSE: Final[FLAT_RESPONSE_TYPE] = {
     "only_admins_see_billable_rates": False,
     "only_admins_see_team_dashboard": False,
     "organization_id": 8364520,
-    "permissions": None,
     "premium": False,
     "profile": 0,
     "projects_billable_by_default": True,

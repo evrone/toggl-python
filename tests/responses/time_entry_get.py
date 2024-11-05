@@ -29,7 +29,6 @@ ME_TIME_ENTRY_WITH_META_RESPONSE: Dict[str, Union[str, int, bool, list, None]] =
     "duration": 22,
     "duronly": True,
     "id": 3544298808,
-    "permissions": None,
     "project_id": None,
     "server_deleted_at": None,
     "start": "2024-07-29T12:28:33+00:00",

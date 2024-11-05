@@ -64,7 +64,6 @@ def project_response_factory(
         "is_private": fake.boolean(),
         "is_shared": fake.boolean(),
         "name": fake.word(),
-        "permissions": None,
         "rate": fake.random_int() if fake.boolean() else None,
         "rate_last_updated": datetime_repr_factory(timezone) if fake.boolean() else None,
         "recurring": fake.boolean(),
