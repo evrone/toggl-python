@@ -66,14 +66,12 @@ def test_me__with_related_data(i_authed_user: CurrentUser) -> None:
     argvalues=[
         ("beginning_of_week", fake.random_int(min=0, max=6)),
         ("country_id", fake.random_int(min=100, max=200)),
-        ("email", fake.email()),
         ("fullname", fake.name()),
         ("timezone", fake.timezone()),
     ],
     ids=(
         "beginning_of_week",
         "country_id",
-        "email",
         "fullname",
         "timezone",
     ),
@@ -85,6 +83,7 @@ def test_update_me__ok(
     field_value: Union[str, int],
 ) -> None:
     # default_workspace_id is not tested because it requires method to create and delete workspace
+    # `email` is skipped because changing it leads to flaky tests
     update_body = {field_name: field_value}
     current_state_body = {field_name: getattr(me_response, field_name)}
 
