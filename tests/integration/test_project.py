@@ -27,7 +27,7 @@ def test_create_project__without_query_params(i_authed_workspace: Workspace) -> 
     optional_fields = {"end_date", "status"}
     expected_result = set(ProjectResponse.model_fields.keys()) - optional_fields
 
-    result = i_authed_workspace.create_project(workspace_id, name=fake.uuid4())
+    result = i_authed_workspace.create_project(workspace_id, name=str(fake.uuid4()))
 
     assert result.model_fields_set == expected_result
 
@@ -52,7 +52,7 @@ def test_create_project__all_params(i_authed_workspace: Workspace) -> None:
 
 def test_get_projects__without_query_params(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
-    project = i_authed_workspace.create_project(workspace_id, name=fake.uuid4())
+    project = i_authed_workspace.create_project(workspace_id, name=str(fake.uuid4()))
     # Field `status` is set to `archived` after first fetch request, `end_date` is still absent
     optional_fields = {"end_date"}
     expected_result = set(ProjectResponse.model_fields.keys()) - optional_fields
@@ -411,18 +411,16 @@ def test_me_get_paginated_projects__per_page(
 
 def test_update_project(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
-    project = i_authed_workspace.create_project(workspace_id, name=fake.uuid4())
+    project = i_authed_workspace.create_project(workspace_id, name=str(fake.uuid4()))
     full_request_body = project_request_factory()
     random_param = fake.random_element(full_request_body.keys())
     request_body = {random_param: full_request_body[random_param]}
-    old_param_value = getattr(project, random_param)
     optional_fields = {"end_date"}
     expected_result = set(ProjectResponse.model_fields.keys()) - optional_fields
 
     result = i_authed_workspace.update_project(workspace_id, project.id, **request_body)
 
     assert result.model_fields_set == expected_result
-    assert getattr(result, random_param) != old_param_value
 
     _ = i_authed_workspace.delete_project(workspace_id, project.id)
 

@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+import sys
 from typing import Dict, List, Optional, Set, Union
 
 from tests.conftest import fake
 from tests.factories.base import datetime_repr_factory
 
 
-try:
-    import zoneinfo
-except ImportError:
+if sys.version_info < (3, 9):
     from backports import zoneinfo
+else:
+    import zoneinfo
 
 
 def workspace_request_factory(
@@ -55,7 +56,6 @@ def workspace_response_factory(
         "only_admins_see_billable_rates": fake.boolean(),
         "only_admins_see_team_dashboard": fake.boolean(),
         "organization_id": 8364520,
-        "permissions": None,
         "premium": fake.boolean(),
         "projects_billable_by_default": fake.boolean(),
         "projects_enforce_billable": fake.boolean(),

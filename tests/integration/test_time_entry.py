@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
@@ -16,10 +17,11 @@ from tests.factories.time_entry import (
 from tests.integration import pytestmark  # noqa: F401 - imported but unused
 
 
-try:
-    import zoneinfo
-except ImportError:
+if sys.version_info < (3, 9):
     from backports import zoneinfo
+else:
+    import zoneinfo
+
 
 
 if TYPE_CHECKING:
@@ -52,7 +54,7 @@ def test_create_time_entry__all_fields(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
     request_body = time_entry_extended_request_factory(workspace_id)
     expected_result = set(MeTimeEntryResponse.model_fields.keys())
-    project = i_authed_workspace.create_project(workspace_id, name=fake.uuid4())
+    project = i_authed_workspace.create_project(workspace_id, name=str(fake.uuid4()))
 
     result = i_authed_workspace.create_time_entry(
         workspace_id,

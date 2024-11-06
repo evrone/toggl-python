@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
@@ -20,10 +21,11 @@ if TYPE_CHECKING:
     from toggl_python.entities.workspace import Workspace
 
 
-try:
-    import zoneinfo
-except ImportError:
+if sys.version_info < (3, 9):
     from backports import zoneinfo
+else:
+    import zoneinfo
+
 
 
 @pytest.mark.parametrize(

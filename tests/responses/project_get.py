@@ -23,7 +23,6 @@ PROJECT_RESPONSE: Dict[str, Union[str, bool, int, None, List]] = {
     "is_private": True,
     "is_shared": False,
     "name": "test project",
-    "permissions": None,
     "rate": None,
     "rate_last_updated": None,
     "recurring": False,
