@@ -20,7 +20,6 @@ WORKSPACE_RESPONSE: Final[FLAT_RESPONSE_TYPE] = {
     "name": "test workspace",
     "only_admins_may_create_projects": False,
     "only_admins_may_create_tags": False,
-    "only_admins_see_billable_rates": False,
     "only_admins_see_team_dashboard": False,
     "organization_id": 8364520,
     "premium": False,

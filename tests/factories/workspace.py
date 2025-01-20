@@ -53,7 +53,6 @@ def workspace_response_factory(
         "name": fake.text(max_nb_chars=139),
         "only_admins_may_create_projects": fake.boolean(),
         "only_admins_may_create_tags": fake.boolean(),
-        "only_admins_see_billable_rates": fake.boolean(),
         "only_admins_see_team_dashboard": fake.boolean(),
         "organization_id": 8364520,
         "premium": fake.boolean(),

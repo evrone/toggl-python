@@ -61,7 +61,7 @@ class Workspace(ApiWrapper):
         """Allow to update Workspace instance fields which are available on free plan.
 
         Request body parameters `default_hourly_rate`, `default_currency`, `rounding`,
-        `rounding_minutes`, `only_admins_see_billable_rates`, `projects_billable_by_default`,
+        `rounding_minutes`, `projects_billable_by_default`,
         `rate_change_mode`, `project_private_by_default`, `projects_enforce_billable` are
         available only on paid plan. That is why they are not listed in method arguments.
         """
