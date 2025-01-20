@@ -92,7 +92,7 @@ def test_get_workspaces__too_old_since_value(
     argnames="workspace_name, error_message",
     argvalues=(
         ("", "String should have at least 1 character"),
-        (fake.pystr(min_chars=140, max_chars=200), "String should have at most 140 character"),
+        (fake.pystr(min_chars=141, max_chars=200), "String should have at most 140 character"),
     ),
 )
 def test_update__invalid_workspace_name(
