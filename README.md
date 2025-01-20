@@ -114,6 +114,11 @@ if __name__ == "__main__":
 
 `poetry` is required during local setup.
 
+* Install minimal supported `Python` version using `pyenv` - `pyenv install 3.8`
+* Activate it for current project - `pyenv local 3.8`
+* Create virtual environment - `python -m venv .venv`. If `Python version is not minimal` then
+IDE suggestions will be incorrect and `pre-commit` hooks will not be working.
+
 Run `poetry install --no-root` to setup local environment. `pre-commit install` is also advisable.
 
 
