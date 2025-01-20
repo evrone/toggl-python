@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "toggl_python"
-version = "0.3.1"
+version = "0.3.2"
 description = "Typed `Toggl API` Python wrapper with pre-validation to avoid extra network usage."
 authors = ["Evrone <mail@evrone.com>"]
 maintainers = ["Nifadev Vadim <vnifadev@evrone.com>"]
