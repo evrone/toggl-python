@@ -82,7 +82,7 @@ class Workspace(ApiWrapper):
         response_body = response.json()
         return WorkspaceResponse.model_validate(response_body)
 
-    def create_project(  # noqa: PLR0913 - Too many arguments in function definition
+    def create_project(
         self,
         workspace_id: int,
         active: Optional[bool] = None,
@@ -96,8 +96,6 @@ class Workspace(ApiWrapper):
         is_shared: Optional[bool] = None,
         name: Optional[str] = None,
         start_date: Union[date, str, None] = None,
-        template: Optional[bool] = None,
-        template_id: Optional[int] = None,
     ) -> ProjectResponse:
         """Allow to update Project instance fields which are available on free plan.
 
@@ -119,8 +117,6 @@ class Workspace(ApiWrapper):
             is_shared=is_shared,
             name=name,
             start_date=start_date,
-            template=template,
-            template_id=template_id,
         )
         request_body = request_body_schema.model_dump(
             mode="json", exclude_none=True, exclude_unset=True

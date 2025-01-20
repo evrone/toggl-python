@@ -375,7 +375,6 @@ def test_bulk_edit_projects__empty_operations(authed_workspace: Workspace) -> No
         (BulkEditProjectsFieldNames.is_private.value, fake.boolean()),
         (BulkEditProjectsFieldNames.project_name.value, fake.uuid4()),
         (BulkEditProjectsFieldNames.start_date.value, fake.date()),
-        (BulkEditProjectsFieldNames.template.value, fake.boolean()),
     ],
 )
 def test_bulk_edit_time_entries__ok(

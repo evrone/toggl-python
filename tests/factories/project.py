@@ -26,7 +26,6 @@ def project_request_factory() -> Dict[str, Union[str, bool, int]]:
         "is_shared": fake.boolean(),
         "name": str(fake.uuid4()),
         "start_date": start_date.isoformat(),
-        "template": fake.boolean(),
     }
 
     if fake.boolean():
@@ -72,7 +71,7 @@ def project_response_factory(
         "start_date": fake.past_date().isoformat(),
         "status": fake.word() if fake.boolean() else None,
         "template": fake.null_boolean(),
-        "template_id": fake.random_int(),
+        "template_id": fake.random_int() if fake.boolean() else None,
         "wid": workspace_id or fake.random_int(),
         "workspace_id": workspace_id or fake.random_int(),
     }
