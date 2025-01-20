@@ -37,6 +37,7 @@ httpx = {extras = ["http2"], version = "^0.27.2"}
 # use zoneinfo.available_timezones()
 backports-zoneinfo = {version = "^0.2.1", python = "3.8"}
 pydantic = {extras = ["email"], version = "^2.9.2"}
+nox = "^2024.10.9"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
