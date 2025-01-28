@@ -110,6 +110,7 @@ def test_update_me__unavailable_default_workspace_id(i_authed_user: CurrentUser)
         _ = i_authed_user.update_me(default_workspace_id=invalid_default_workspace_id)
 
 
+@pytest.mark.skip(reason="Changes actual user password, run this test only when necessary")
 def test_change_password__ok(i_authed_user: CurrentUser) -> None:
     current_password = os.environ["TOGGL_PASSWORD"]
     new_password = fake.password()

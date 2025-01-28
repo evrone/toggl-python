@@ -24,7 +24,6 @@ class WorkspaceResponseBase(BaseSchema):
     name: str
     only_admins_may_create_projects: bool
     only_admins_may_create_tags: bool
-    only_admins_see_billable_rates: bool
     only_admins_see_team_dashboard: bool
     organization_id: int
     premium: bool

@@ -199,23 +199,6 @@ def test_get_projects__with_page_and_per_page(i_authed_workspace: Workspace) -> 
     _ = i_authed_workspace.delete_project(workspace_id, last_created_project.id)
 
 
-def test_get_projects__only_templates(i_authed_workspace: Workspace) -> None:
-    workspace_id = int(os.environ["WORKSPACE_ID"])
-    template_project = i_authed_workspace.create_project(
-        workspace_id, template=True, name=fake.uuid4()
-    )
-    usual_project = i_authed_workspace.create_project(workspace_id, active=True, name=fake.uuid4())
-
-    result = i_authed_workspace.get_projects(workspace_id, only_templates=True)
-
-    project_ids = {project.id for project in result}
-    assert usual_project.id not in project_ids
-    assert template_project.id in project_ids
-
-    _ = i_authed_workspace.delete_project(workspace_id, template_project.id)
-    _ = i_authed_workspace.delete_project(workspace_id, usual_project.id)
-
-
 def test_get_projects__sort_field_and_sort_order(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
     project_suffix_name = fake.word()

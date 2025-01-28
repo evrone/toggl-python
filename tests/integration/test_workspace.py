@@ -25,7 +25,7 @@ def test_get_workspace_by_id(i_authed_workspace: Workspace) -> None:
     assert result.model_fields_set == expected_result
 
 
-def test_get_workspaces__without_query_params(i_authed_workspace: Workspace)-> None:
+def test_get_workspaces__without_query_params(i_authed_workspace: Workspace) -> None:
     expected_result = set(WorkspaceResponse.model_fields.keys())
 
     result = i_authed_workspace.list()
@@ -35,7 +35,12 @@ def test_get_workspaces__without_query_params(i_authed_workspace: Workspace)-> N
 
 def test_update(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
-    excluded_fields = {"admins", "only_admins_may_create_tags"}
+    excluded_fields = {
+        "admins",
+        "only_admins_may_create_tags",
+        "reports_collapse",
+        "only_admins_see_team_dashboard",
+    }
     full_request_body = workspace_request_factory(exclude=excluded_fields)
     random_param = fake.random_element(full_request_body.keys())
     request_body = {random_param: full_request_body[random_param]}

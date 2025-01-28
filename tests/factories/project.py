@@ -26,7 +26,6 @@ def project_request_factory() -> Dict[str, Union[str, bool, int]]:
         "is_shared": fake.boolean(),
         "name": str(fake.uuid4()),
         "start_date": start_date.isoformat(),
-        "template": fake.boolean(),
     }
 
     if fake.boolean():
@@ -62,7 +61,6 @@ def project_response_factory(
         "fixed_fee": fake.random_int() if fake.boolean() else None,
         "id": fake.random_int(),
         "is_private": fake.boolean(),
-        "is_shared": fake.boolean(),
         "name": fake.word(),
         "rate": fake.random_int() if fake.boolean() else None,
         "rate_last_updated": datetime_repr_factory(timezone) if fake.boolean() else None,
@@ -72,7 +70,7 @@ def project_response_factory(
         "start_date": fake.past_date().isoformat(),
         "status": fake.word() if fake.boolean() else None,
         "template": fake.null_boolean(),
-        "template_id": fake.random_int(),
+        "template_id": fake.random_int() if fake.boolean() else None,
         "wid": workspace_id or fake.random_int(),
         "workspace_id": workspace_id or fake.random_int(),
     }

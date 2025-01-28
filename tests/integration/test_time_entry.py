@@ -54,7 +54,7 @@ def test_create_time_entry__all_fields(i_authed_workspace: Workspace) -> None:
     workspace_id = int(os.environ["WORKSPACE_ID"])
     request_body = time_entry_extended_request_factory(workspace_id)
     expected_result = set(MeTimeEntryResponse.model_fields.keys())
-    project = i_authed_workspace.create_project(workspace_id, name=str(fake.uuid4()))
+    project = i_authed_workspace.create_project(workspace_id, name=str(fake.uuid4()), active=True)
 
     result = i_authed_workspace.create_time_entry(
         workspace_id,

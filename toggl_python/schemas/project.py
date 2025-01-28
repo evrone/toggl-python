@@ -28,7 +28,6 @@ class ProjectResponse(BaseSchema):
     fixed_fee: Optional[int]
     id: int
     is_private: bool
-    is_shared: bool
     name: str
     rate: Optional[int]
     rate_last_updated: Optional[datetime]
@@ -89,8 +88,6 @@ class CreateProjectRequest(BaseSchema):
     is_shared: Optional[bool] = None
     name: Optional[str] = None
     start_date: Optional[date] = None
-    template: Optional[bool] = None
-    template_id: Optional[int] = None
 
     @field_serializer("start_date", "end_date", when_used="json")
     def serialize_datetimes(self, value: Optional[date]) -> Optional[str]:
@@ -129,4 +126,3 @@ class BulkEditProjectsFieldNames(str, Enum):
     is_private = "is_private"
     project_name = "name"
     start_date = "start_date"
-    template = "template"
