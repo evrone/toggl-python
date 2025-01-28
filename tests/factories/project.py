@@ -61,7 +61,6 @@ def project_response_factory(
         "fixed_fee": fake.random_int() if fake.boolean() else None,
         "id": fake.random_int(),
         "is_private": fake.boolean(),
-        "is_shared": fake.boolean(),
         "name": fake.word(),
         "rate": fake.random_int() if fake.boolean() else None,
         "rate_last_updated": datetime_repr_factory(timezone) if fake.boolean() else None,

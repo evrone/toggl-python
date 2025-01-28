@@ -28,7 +28,6 @@ class ProjectResponse(BaseSchema):
     fixed_fee: Optional[int]
     id: int
     is_private: bool
-    is_shared: bool
     name: str
     rate: Optional[int]
     rate_last_updated: Optional[datetime]
