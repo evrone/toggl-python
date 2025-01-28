@@ -110,3 +110,6 @@ markers = [
     "integration: make API calls during testing (deselect with '-m \"not integration\"')",
 ]
 addopts = "--cov=toggl_python --cov-fail-under=95"
+
+[tool.coverage.run]
+omit =["__init__.py"]
