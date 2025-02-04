@@ -97,7 +97,6 @@ class Workspace(BaseEntity):
     default_hourly_rate: Optional[float] = None
     default_currency: str
     only_admins_may_create_projects: bool
-    only_admins_see_billable_rates: bool
     rounding: int
     rounding_minutes: int
     logo_url: Optional[HttpUrl] = None
